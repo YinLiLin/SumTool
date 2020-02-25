@@ -62,8 +62,9 @@ LD Score
 
 Impute Zscore
 -----
+For Zscore imputation, at least 6 columns should be provided in same order with the example above for typed SNPs. No need to separate genome into chromosomes
 ```r
-# get the path of attached data on SumTool
+# get the path of attached example data on SumTool
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 typed_z_path <- system.file("extdata", "typed.zscore", package = "SumTool")
 
@@ -83,7 +84,7 @@ head(typed_z)
 # Impute Zscore
 xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, w=1000000, threads=1)
 ```
-At least 6 columns should be provided in same order with the example above for typed SNPs. For multiple traits, Zscore could be listed in the following columns respectively.<br>
+***Note***: For multiple traits, Zscore could be listed in the following columns respectively.<br>
 If the individual genotype of summary statistics is available, the imputation accuracy can be improved by using the LD matrix derived from individual genotype rather than reference panel for typed SNPs. 
 ```r
 gwas_bfile_path <- system.file("extdata", "gwas_geno", package = "SumTool")
