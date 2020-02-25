@@ -8,7 +8,7 @@ Overview
 
 ```SumTool``` was developed by [Lilin Yin](https://github.com/YinLiLin) with the support of [Jian Zeng](https://scholar.google.com/citations?user=mOyykToAAAAJ&hl=en) and [Jian Yang](https://scholar.google.com.au/citations?user=aLuqQs8AAAAJ&hl=en). If you have any bug reports or questions, please feed back :point_right:[here](https://github.com/YinLiLin/SumTool/issues/new):point_left:.
 
-Contents
+Features
 -----
 - LD 
   - [Linkage disequilibrium matrix](#linkage-disequilibrium)
@@ -21,8 +21,15 @@ Contents
   - [Genetic correlation](#estimate-rg)
 - SBLUP
   - [Joint effect](#estimate-joint-effect)
- --- 
- 
+--- 
+Installation
+-----
+Please install ```devtools``` prior to installing ```SumTool```:
+```r
+> devtools::install_github("YinLiLin/SumTool")
+```
+After installed successfully, type ```library(SumTool)``` to use, then type ```lsf.str("package:SumTool")``` see details of all available functions and parameters.
+
 Genotype Converting
 -----
 With the developing of advaced sequence technologies, the unprecedentedly increased markers across genome make a big challenge in relevant genetic analysis. Loading the genotype into memory directly is highly limited by the computation resources, which becomes the bottleneck of the most of softwares or pipelines. Here we provided a function ```read_plink``` developed by aid of bigmemory package to construct memory-mapped files ('big.matrix') on disk from plink binary files. Instead of reading all genotype data into RAM, it greatly reduce memory cost without significantly increase of computation time.
