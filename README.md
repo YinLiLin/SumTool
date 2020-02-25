@@ -21,3 +21,48 @@ Contents
   - [Heritability](#estimate-h2)
   - [Genetic correlation](#estimate-rg)
 - SBLUP
+  - [Joint effect](#estimate-joint-effect)
+  
+  
+  
+Linkage Disequilibrium
+-----
+
+
+
+
+LD Score
+-----
+
+
+
+
+Impute Zscore
+-----
+
+
+
+Impute Marginal Effect
+-----
+
+
+Impute Zscore
+-----
+
+
+
+Estimate h2
+-----
+
+
+
+Estimate rG
+-----
+
+
+
+
+Estimate Joint Effect
+-----
+
+
