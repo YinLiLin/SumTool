@@ -23,6 +23,8 @@ Contents
 - SBLUP
   - [Joint effect](#estimate-joint-effect)
  --- 
+Genotype Converting
+-----
 With the developing of advaced sequence technologies, the unprecedentedly increased markers across genome make a big challenge in relevant genetic analysis. Loading the genotype into memory directly is highly limited by the computation resources, which becomes the bottleneck of the most of softwares or pipelines. Here we provided a function ```read_plink``` developed by aid of bigmemory package to construct memory-mapped files ('big.matrix') on disk from plink binary files. Instead of reading all genotype data into RAM, it greatly reduce memory cost without significantly increase of computation time.
 ```r
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
@@ -38,7 +40,6 @@ data <- read_plink(bfile=ref_bfile_path, backingpath="./", descriptorfile="test.
 # directly use for the next time
 ref.geno <- attach.big.matrix("./test.desc")
 ```
-
 Linkage Disequilibrium
 -----
 
