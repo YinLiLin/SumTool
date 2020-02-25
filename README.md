@@ -98,9 +98,31 @@ xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, typed.geno=typ
 
 Impute Marginal Effect
 -----
+For BETA and SE imputation, limited 8 columns should be provided in same order with the example above for typed SNPs. No need to separate genome into chromosomes. ***NOTE***: It is not supported to impute multiple traits at a time.
+```r
+# get the path of attached example data on SumTool
+ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
+typed_beta_path <- system.file("extdata", "typed.marginal", package = "SumTool")
 
+# reading data
+data <- read_plink(bfile=ref_bfile_path, threads=1)
+ref.geno <- data$geno
+ref.map <- data$map
+typed_beta <- read.table(typed_beta_path, header=TRUE)
+head(typed_beta)     
+         SNP Chr     BP A1 A2     BETA     SE NMISS
+1 rs12564807   1 734462  G  A  0.95550 0.5353   100
+2  rs3094315   1 752566  G  A  0.69770 0.5147   100
+3  rs3131972   1 752721  A  G  0.55130 0.5280   100
+4  rs3131969   1 754182  A  G -0.04744 0.5306   100
+5  rs1048488   1 760912  C  T -0.07650 0.5416   100
 
+# Impute BETA and SE
+xx <- SImputeB(ref.geno=ref.geno, ref.map=ref.map, typed=typed_beta, w=1000000, threads=1)
 
+# As discussed above in Zscore imputation, the individual genotype of summary statistics could be used in prediction
+xx <- SImputeB(ref.geno=ref.geno, ref.map=ref.map, typed=typed_beta, typed.geno=typed.geno, w=1000000, threads=1)
+```
 
 Estimate h2
 -----
