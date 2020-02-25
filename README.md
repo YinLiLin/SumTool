@@ -84,7 +84,7 @@ head(typed_z)
 # Impute Zscore
 xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, w=1000000, threads=1)
 ```
-***Note***: For multiple traits, Zscore could be listed in the following columns respectively.<br>
+***NOTE***: For multiple traits, Zscore could be listed in the following columns respectively.<br>
 If the individual genotype of summary statistics is available, the imputation accuracy can be improved by using the LD matrix derived from individual genotype rather than reference panel for typed SNPs. 
 ```r
 gwas_bfile_path <- system.file("extdata", "gwas_geno", package = "SumTool")
@@ -127,16 +127,110 @@ xx <- SImputeB(ref.geno=ref.geno, ref.map=ref.map, typed=typed_beta, typed.geno=
 
 Estimate h2
 -----
-
+```r
+sumstat1_path <- system.file("extdata", "sumstat1", package = "SumTool")
+ldscore_path <- system.file("extdata", "ldscore", package = "SumTool")
+sumstat1 <- read.table(sumstat1_path, header=TRUE)
+ldscore <- read.table(ldscore_path, header=TRUE)
+res1 <- LDreg(sumstat = sumstat1, ldscore = ldscore)
+**************************************************
+* Summary statistics analysis Tool (SumTool)     *
+* Version 0.99.5                                 *
+* Author: Lilin Yin                              *
+* GPL-3.0 License                                *
+**************************************************
+Analysis started: 2020-02-25 19:24:37
+Number of SNPs for summary statistics 1858
+Number of SNPs for ldscore 1851
+After merging with reference panel 1851 SNPs remain
+Total 664 SNPs that MAF > 0.05
+Total 100 individuals included
+Using two-step estimator with cutoff at 80
+Estimated h2: 0.2052172 (0.03288962)
+Lambda GC: 0.8296245
+Mean Chi^2: 1.025956
+Intercept: 0.4435941 (0.05108769)
+Analysis finished: 2020-02-25 19:24:37
+Total Running time: 0s
+```
 
 
 Estimate rG
 -----
+```r
+sumstat1_path <- system.file("extdata", "sumstat1", package = "SumTool")
+sumstat2_path <- system.file("extdata", "sumstat2", package = "SumTool")
+ldscore_path <- system.file("extdata", "ldscore", package = "SumTool")
+sumstat1 <- read.table(sumstat1_path, header=TRUE)
+sumstat2 <- read.table(sumstat2_path, header=TRUE)
+ldscore <- read.table(ldscore_path, header=TRUE)
 
+res2 <- LDreg(sumstat = list(sumstat1, sumstat2), ldscore = ldscore)
+```
 
 
 
 Estimate Joint Effect
 -----
 
+```r
+sumstat_path <- system.file("extdata", "typed.marginal", package = "SumTool")
+ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
+# load data
+sumstat <- read.table(sumstat_path, header=TRUE)
+data <- read_plink(bfile=ref_bfile_path, threads=1)
+geno <- data$geno
+map <- data$map
+h2 <- 0.5
+lambda = nrow(sumstat)*(1/h2-1)
+eff <- SBLUP(sumstat = sumstat, geno = geno, map = map, lambda = lambda, threads = 1)
+**************************************************
+* Summary statistics analysis Tool (SumTool)     *
+* Version 0.99.5                                 *
+* Author: Lilin Yin                              *
+* GPL-3.0 License                                *
+**************************************************
+Analysis started: 2020-02-25 19:26:42
+Bivariate LD regression on 2 traits
+
+Heritability of phenotype 1
+--------------------------------------------
+Number of SNPs for summary statistics 1858
+Number of SNPs for ldscore 1851
+After merging with reference panel 1851 SNPs remain
+Total 664 SNPs that MAF > 0.05
+Total 100 individuals included
+Using two-step estimator with cutoff at 80
+Estimated h2: 0.2052172 (0.03288962)
+Lambda GC: 0.8296245
+Mean Chi^2: 1.025956
+Intercept: 0.4435941 (0.05108769)
+
+Heritability of phenotype 2
+--------------------------------------------
+Number of SNPs for summary statistics 1858
+Number of SNPs for ldscore 1851
+After merging with reference panel 1851 SNPs remain
+Total 664 SNPs that MAF > 0.05
+Total 100 individuals included
+Using two-step estimator with cutoff at 80
+Estimated h2: 0.2033435 (0.03280185)
+Lambda GC: 0.785571
+Mean Chi^2: 1.042492
+Intercept: 0.451278 (0.05230535)
+
+Genetic Covariance between phenotype 1 and 2
+--------------------------------------------
+Number of shared SNPs: 1851
+Number of individuals for two traits: 100 100
+Estimated gencov: 0.1769602 (0.0233377)
+Mean z1*z2: 1.024773
+Intercept: 0.4565242 (0.04693957)
+Genetic Correlation:
+          trait1    trait2
+trait1 1.0000000 0.8662705
+trait2 0.8662705 1.0000000
+Analysis finished: 2020-02-25 19:26:42
+Total Running time: 0s
+```
 
