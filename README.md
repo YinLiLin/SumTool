@@ -12,12 +12,12 @@ Contents
 -----
 
 - LD 
-  - linkage disequilibrium
-  - linkage disequilibrium score
+  - Linkage disequilibrium
+  - Linkage disequilibrium score
 - Impute
   - Zscore imputation
   - Beta and SE imputation
 - LD regression
-  - heritability 
+  - Heritability 
   - Genetic correlation
 - SBLUP
