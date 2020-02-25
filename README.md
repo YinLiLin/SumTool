@@ -167,23 +167,7 @@ ldscore <- read.table(ldscore_path, header=TRUE)
 
 res2 <- LDreg(sumstat = list(sumstat1, sumstat2), ldscore = ldscore)
 ```
-
-
-
-Estimate Joint Effect
------
-
-```r
-sumstat_path <- system.file("extdata", "typed.marginal", package = "SumTool")
-ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-# load data
-sumstat <- read.table(sumstat_path, header=TRUE)
-data <- read_plink(bfile=ref_bfile_path, threads=1)
-geno <- data$geno
-map <- data$map
-h2 <- 0.5
-lambda = nrow(sumstat)*(1/h2-1)
-eff <- SBLUP(sumstat = sumstat, geno = geno, map = map, lambda = lambda, threads = 1)
+```
 **************************************************
 * Summary statistics analysis Tool (SumTool)     *
 * Version 0.99.5                                 *
@@ -231,6 +215,45 @@ Genetic Correlation:
 trait1 1.0000000 0.8662705
 trait2 0.8662705 1.0000000
 Analysis finished: 2020-02-25 19:26:42
+Total Running time: 0s
+```
+
+
+Estimate Joint Effect
+-----
+
+```r
+sumstat_path <- system.file("extdata", "typed.marginal", package = "SumTool")
+ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
+# load data
+sumstat <- read.table(sumstat_path, header=TRUE)
+data <- read_plink(bfile=ref_bfile_path, threads=1)
+geno <- data$geno
+map <- data$map
+h2 <- 0.5
+lambda = nrow(sumstat)*(1/h2-1)
+eff <- SBLUP(sumstat = sumstat, geno = geno, map = map, lambda = lambda, threads = 1)
+```
+```
+**************************************************
+* Summary statistics analysis Tool (SumTool)     *
+* Version 0.99.5                                 *
+* Author: Lilin Yin                              *
+* GPL-3.0 License                                *
+**************************************************
+Analysis started: 2020-02-25 19:30:24
+Data and parameters check...(Qualified)
+Number of total SNPs in geno is 1851
+Number of individuals in geno is 379
+Number of total SNPs in summary statistics is 52
+Number of individuals in summary statistics is 100
+Ridge regression coefficient 52
+Number of shared typed SNPs is 45
+Window size is 1Mb
+Loop on chromosome 1 with 45 SNPs
+Total Number of windows: 1
+The 1th window: Start[734462] ~ End[998395]
+Analysis finished: 2020-02-25 19:30:24
 Total Running time: 0s
 ```
 
