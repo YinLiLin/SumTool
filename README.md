@@ -16,8 +16,8 @@ Contents
   - [Linkage disequilibrium score](#ld-score)
 - Impute
   - [Zscore imputation](#impute-zscore)
-  - Beta and SE imputation(#impute-marginal-effect)
+  - [Beta and SE imputation](#impute-marginal-effect)
 - LD regression
-  - Heritability(#estimate-h2)
-  - Genetic correlation(#estimate-rg)
+  - [Heritability](#estimate-h2)
+  - [Genetic correlation](#estimate-rg)
 - SBLUP
