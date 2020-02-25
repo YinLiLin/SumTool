@@ -22,9 +22,9 @@ Contents
   - [Genetic correlation](#estimate-rg)
 - SBLUP
   - [Joint effect](#estimate-joint-effect)
-  
-  
-  
+ --- 
+With the developing of advaced sequence technologies, the unprecedentedly increased markers across genome make a big challenge in relevant genetic analysis. Loading the genotype into memory directly is highly limited by the computation resources, which becomes the bottleneck of the most softwares or pipelines.
+
 Linkage Disequilibrium
 -----
 
