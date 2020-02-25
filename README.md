@@ -46,9 +46,6 @@ Impute Marginal Effect
 -----
 
 
-Impute Zscore
------
-
 
 
 Estimate h2
