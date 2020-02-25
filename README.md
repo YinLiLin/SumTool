@@ -98,7 +98,8 @@ xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, typed.geno=typ
 
 Impute Marginal Effect
 -----
-For BETA and SE imputation, limited 8 columns should be provided in same order with the example above for typed SNPs. No need to separate genome into chromosomes. ***NOTE***: It is not supported to impute multiple traits at a time.
+For BETA and SE imputation, limited 8 columns should be provided in same order with the example above for typed SNPs. No need to separate genome into chromosomes.<br>
+***NOTE***: It is not supported to impute multiple traits at a time.
 ```r
 # get the path of attached example data on SumTool
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
