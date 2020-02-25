@@ -22,6 +22,7 @@ Features
 - SBLUP
   - [Joint effect](#estimate-joint-effect)
 --- 
+
 Installation
 -----
 Please install ```devtools``` prior to installing ```SumTool```:
@@ -61,8 +62,38 @@ LD Score
 
 Impute Zscore
 -----
+```r
+# get the path of attached data on SumTool
+ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
+typed_z_path <- system.file("extdata", "typed.zscore", package = "SumTool")
 
+# reading data
+data <- read_plink(bfile=ref_bfile_path, threads=1)
+ref.geno <- data$geno
+ref.map <- data$map
+typed_z <- read.table(typed_z_path, header=TRUE)
+head(typed_z)     
+         SNP Chr     BP A1 A2     Zscore
+1 rs12564807   1 734462  G  A  1.7849800
+2  rs3094315   1 752566  G  A  1.3555500
+3  rs3131972   1 752721  A  G  1.0441300
+4  rs3131969   1 754182  A  G -0.0894082
+5  rs1048488   1 760912  C  T -0.1412480
 
+# Impute Zscore
+xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, w=1000000, threads=1)
+```
+At least 6 columns should be provided in same order with the example above for typed SNPs. For multiple traits, Zscore could be listed in the following columns respectively.
+If the individual genotype of summary statistics is available, the imputation accuracy can be improved by using the LD matrix derived from individual genotype rather than reference panel for typed SNPs. 
+```r
+gwas_bfile_path <- system.file("extdata", "gwas_geno", package = "SumTool")
+gwas <- read_plink(bfile=gwas_bfile_path, threads=1)
+typed.geno <- gwas$geno
+typed.map <- gwas$map
+# NOTE: the order of SNPs in 'typed.geno' should be consistent with the order in 'typed_z'.
+typed.geno <- deepcopy(typed.geno, cols = match(typed_z[, 1], typed.map[, 1]))
+xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, typed.geno=typed.geno, w=1000000, threads=1)
+```
 
 Impute Marginal Effect
 -----
