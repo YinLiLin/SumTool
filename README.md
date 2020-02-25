@@ -133,6 +133,8 @@ ldscore_path <- system.file("extdata", "ldscore", package = "SumTool")
 sumstat1 <- read.table(sumstat1_path, header=TRUE)
 ldscore <- read.table(ldscore_path, header=TRUE)
 res1 <- LDreg(sumstat = sumstat1, ldscore = ldscore)
+```
+```
 **************************************************
 * Summary statistics analysis Tool (SumTool)     *
 * Version 0.99.5                                 *
