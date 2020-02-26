@@ -4,7 +4,7 @@
 
 Overview
 -----
-```SumTool``` was designed to implement GWAS summary statistics analysis for big data. It can do ld, ldscore computation, Zscore, Marginal effect imputation, summary data based SNP BLUP (SBLUP) solution, as well as LD regression for heritability and genetic correlation estimation. It featured with memory efficiency and parallel calculation. By the aid of package 'bigmemory', SumTool constructs memory-mapped files for genotype panel on disk instead of loading it all into Random Access Memory (RAM), which makes it possible to handle very big data with limited computation resources. Additionally, all parallel processes are accelerated as fast as possible by OpenMP technology. The functions of SumTool will keep on being enriched with more features based on users feedbacks.
+```SumTool``` was designed to implement GWAS summary statistics analysis for big data. It can do ld, ldscore computation, Zscore, Marginal effect imputation, summary data based SNP BLUP (SBLUP) solution, as well as LD regression for heritability and genetic correlation estimation. It featured with memory efficiency and parallel calculation. By the aid of package '(bigmemory)[https://cran.r-project.org/web/packages/bigmemory/bigmemory.pdf]', SumTool constructs memory-mapped files for genotype panel on disk instead of loading it all into Random Access Memory (RAM), which makes it possible to handle very big data with limited computation resources. Additionally, all parallel processes are accelerated as fast as possible by OpenMP technology. The functions of SumTool will keep on being enriched with more features based on users feedbacks.
 
 ```SumTool``` was developed by [Lilin Yin](https://github.com/YinLiLin) with the support of [Jian Zeng](https://scholar.google.com/citations?user=mOyykToAAAAJ&hl=en) and [Jian Yang](https://scholar.google.com.au/citations?user=aLuqQs8AAAAJ&hl=en). If you have any bug reports or questions, please feed back :point_right:[here](https://github.com/YinLiLin/SumTool/issues/new):point_left:.
 
@@ -131,6 +131,7 @@ xx <- SImputeB(ref.geno=ref.geno, ref.map=ref.map, typed=typed_beta, typed.geno=
 
 Estimate h2
 -----
+The estimated heritability (h2) is defined as the coefficient value of regressing square of zscore on ldscore. Compared with REML-based algorithm, LD regression only requires summary statistics and ldscore calculated from reference panel, no need for individual level genoetype data.
 ```r
 sumstat1_path <- system.file("extdata", "sumstat1", package = "SumTool")
 ldscore_path <- system.file("extdata", "ldscore", package = "SumTool")
@@ -162,6 +163,7 @@ Total Running time: 0s
 
 Estimate rG
 -----
+In addition to estimate heritability for single trait, the 'LDreg' function can also be applied to estimate the genetic correlation for multiple traits. In this case, just assigning a list containing summary statistics of multiple traits to the parameter 'sumstat', the procedure will firstly process the estimation of heritability for each trait and then estimate the genetic correlation for pairs of traits.
 ```r
 sumstat1_path <- system.file("extdata", "sumstat1", package = "SumTool")
 sumstat2_path <- system.file("extdata", "sumstat2", package = "SumTool")
@@ -225,18 +227,27 @@ Total Running time: 0s
 
 Estimate Joint Effect
 -----
-
+To estimate joint effect, in addition to providing the summary statistics with beta included, the ridge regression lambda also should be calculated in prior. lambda = m * (1 / h2 - 1) where m is the total number of SNPs used in this analysis and h2 (known as heritability) is the proportion of variance in the phenotype explained by all SNPs.
 ```r
 sumstat_path <- system.file("extdata", "typed.marginal", package = "SumTool")
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
+
 # load data
 sumstat <- read.table(sumstat_path, header=TRUE)
+head(sumstat)
+         SNP Chr     BP A1 A2     BETA     SE NMISS
+1 rs12564807   1 734462  G  A  0.95550 0.5353   100
+2  rs3094315   1 752566  G  A  0.69770 0.5147   100
+3  rs3131972   1 752721  A  G  0.55130 0.5280   100
+4  rs3131969   1 754182  A  G -0.04744 0.5306   100
+5  rs1048488   1 760912  C  T -0.07650 0.5416   100
+6 rs12562034   1 768448  G  A -0.12360 0.5500   100
 data <- read_plink(bfile=ref_bfile_path, threads=1)
 geno <- data$geno
 map <- data$map
 h2 <- 0.5
 lambda = nrow(sumstat)*(1/h2-1)
-eff <- SBLUP(sumstat = sumstat, geno = geno, map = map, lambda = lambda, threads = 1)
+eff <- SBLUP(sumstat = sumstat, geno = geno, map = map, lambda = lambda, w = 1000000, threads = 1)
 ```
 ```
 **************************************************
