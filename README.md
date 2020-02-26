@@ -136,7 +136,23 @@ The estimated heritability (h2) is defined as the coefficient value of regressin
 sumstat1_path <- system.file("extdata", "sumstat1", package = "SumTool")
 ldscore_path <- system.file("extdata", "ldscore", package = "SumTool")
 sumstat1 <- read.table(sumstat1_path, header=TRUE)
+head(sumstat1)
+          SNP Chr   Pos A1 A2       BETA        SE   N
+1  rs58108140   1 10583  G  A -0.3328438 0.5004275 100
+2 rs189107123   1 10611  C  G -0.3709890 1.2545152 100
+3 rs180734498   1 13302  C  T  0.1096603 0.5442463 100
+4 rs144762171   1 13327  G  C -0.7596956 0.9316527 100
+5 rs151276478   1 13980  T  C -1.0898181 1.2143469 100
+
 ldscore <- read.table(ldscore_path, header=TRUE)
+head(ldscore)
+          SNP Chr   Pos A1 A2        Maf  ldscore
+1  rs58108140   1 10583  G  A 0.20712401 1.203392
+2 rs189107123   1 10611  C  G 0.02110818 3.028629
+3 rs180734498   1 13302  C  T 0.13720317 1.828657
+4 rs144762171   1 13327  G  C 0.03957784 2.650524
+5 rs151276478   1 13980  T  C 0.02242744 2.249325
+
 res1 <- LDreg(sumstat = sumstat1, ldscore = ldscore)
 ```
 ```
