@@ -62,7 +62,7 @@ LD Score
 
 Impute Zscore
 -----
-For Zscore imputation, at least 6 columns should be provided in same order with the example above for typed SNPs. No need to separate genome into chromosomes
+For Zscore imputation, at least 6 columns should be provided in same order with the example for typed SNPs. No need to separate genome into chromosomes
 ```r
 # get the path of attached example data on SumTool
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
@@ -98,7 +98,7 @@ xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, typed.geno=typ
 
 Impute Marginal Effect
 -----
-For BETA and SE imputation, limited 8 columns should be provided in same order with the example above for typed SNPs. No need to separate genome into chromosomes.<br>
+For BETA and SE imputation, limited 8 columns should be provided in same order with the example for typed SNPs. No need to separate genome into chromosomes.<br>
 ***NOTE***: It is not supported to impute multiple traits at a time.
 ```r
 # get the path of attached example data on SumTool
@@ -258,4 +258,3 @@ The 1th window: Start[734462] ~ End[998395]
 Analysis finished: 2020-02-25 19:30:24
 Total Running time: 0s
 ```
-
