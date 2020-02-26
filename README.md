@@ -163,7 +163,7 @@ Total Running time: 0s
 
 Estimate rG
 -----
-In addition to estimate heritability for single trait, the 'LDreg' function can also be applied to estimate the genetic correlation for multiple traits. In this case, just assigning a list containing summary statistics of multiple traits to the parameter 'sumstat', the procedure will firstly process the estimation of heritability for each trait and then estimate the genetic correlation for pairs of traits.
+In addition to estimate heritability for single trait, the 'LDreg' function can also be applied to estimate the genetic correlation for multiple traits. In this case, just assign a list containing summary statistics of multiple traits to the parameter 'sumstat', the procedure will firstly process the estimation of heritability for each trait and then estimate the genetic correlation for pairs of traits.
 ```r
 sumstat1_path <- system.file("extdata", "sumstat1", package = "SumTool")
 sumstat2_path <- system.file("extdata", "sumstat2", package = "SumTool")
