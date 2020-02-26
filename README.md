@@ -176,6 +176,10 @@ Intercept: 0.4435941 (0.05108769)
 Analysis finished: 2020-02-25 19:24:37
 Total Running time: 0s
 ```
+***Visualize LD regression results***
+```r
+
+```
 
 Estimate rG
 -----
