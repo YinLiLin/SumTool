@@ -50,15 +50,19 @@ ref.geno <- attach.big.matrix("./test.desc")
 ```
 Linkage Disequilibrium
 -----
-
-
-
+Here, we simply calculate LD by the Pearson correlation (r) of pairs of SNPs
+```r
+ld <- LDcal(geno=geno, threads=1)
+```
+By default, it returns a standard square R matrix with dimension of m by m (m is the number of SNPs), which may cost huge space in memory with the increasing SNPs, users can direct a file on disk by parameter 'out' to store the LD matrix in 'big.matrix' format.
 
 LD Score
 -----
-
-
-
+LD score is defined as the sum of LD r2 between a variant and all the variants in a region. 
+```r
+ldscore <- LDsore(geno = geno, map = map, w = 100000, b=50000, threads = 1)
+```
+In ```LDscore```, we provide a parameter 'r2', users could determine to calculate r or r2. By default, the 'r2' is adjusted by r2adj = r2 - [(1 - r2) / (n -2)], as well as 'r'.
 
 Impute Zscore
 -----
@@ -121,7 +125,7 @@ head(typed_beta)
 # Impute BETA and SE
 xx <- SImputeB(ref.geno=ref.geno, ref.map=ref.map, typed=typed_beta, w=1000000, threads=1)
 
-# As discussed above in Zscore imputation, the individual genotype of summary statistics could be used in prediction
+# As discussed above in Zscore imputation, the individual genotype of summary statistics could be used in imputation
 xx <- SImputeB(ref.geno=ref.geno, ref.map=ref.map, typed=typed_beta, typed.geno=typed.geno, w=1000000, threads=1)
 ```
 
@@ -155,7 +159,6 @@ Intercept: 0.4435941 (0.05108769)
 Analysis finished: 2020-02-25 19:24:37
 Total Running time: 0s
 ```
-
 
 Estimate rG
 -----
@@ -219,7 +222,6 @@ trait2 0.8662705 1.0000000
 Analysis finished: 2020-02-25 19:26:42
 Total Running time: 0s
 ```
-
 
 Estimate Joint Effect
 -----
