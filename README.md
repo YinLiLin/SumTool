@@ -74,7 +74,7 @@ snp <- LDprune(geno = ref.geno, map = ref.map, w = 100000, b=50000, threads = 1)
 
 LD Clumping
 -----
-Different with pruning, clumping uses uses some statistic (usually p-value in the case of GWAS/PRS) to sort the SNPs by importance (e.g. keeping the most significant ones). It takes the first one (e.g. most significant SNP) and removes SNPs that are too correlated with this one in a window around it. As opposed to pruning, this procedure makes sure that this SNP is never removed. We could say that clumping is a trait-specific version of pruning, thus clumping is preferred in Polygenic Risk Score analysis.
+Different with pruning, clumping uses some statistic (usually p-value in the case of GWAS/PRS) to sort the SNPs by importance (e.g. keeping the most significant ones). It takes the first one (e.g. most significant SNP) and removes SNPs that are too correlated with this one in a window around it. As opposed to pruning, this procedure makes sure that this SNP is never removed. We could say that clumping is a trait-specific version of pruning, thus clumping is preferred in Polygenic Risk Score analysis.
 ```r
 p_path <- system.file("extdata", "P.txt", package = "SumTool")
 pdata <- read.table(p_path, header = TRUE)
