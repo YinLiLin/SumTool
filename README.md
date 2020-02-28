@@ -81,6 +81,13 @@ Different with pruning, clumping uses some statistic (usually p-value in the cas
 ```r
 p_path <- system.file("extdata", "P.txt", package = "SumTool")
 pdata <- read.table(p_path, header = TRUE)
+head(pdata)
+          SNP         P
+1  rs58108140 0.5075209
+2 rs189107123 0.7680610
+3 rs180734498 0.8407287
+4 rs144762171 0.4167849
+5 rs151276478 0.3716551
 snp <- LDclump(geno = ref.geno, map = ref.map, p = pdata, p.cutoff = 1, r2.cutoff = 0.25, w = 100000, threads = 1)
 ```
 
