@@ -13,6 +13,7 @@ Features
 - LD 
   - [Linkage disequilibrium matrix](#linkage-disequilibrium)
   - [Linkage disequilibrium score](#ld-score)
+  - [Linkage disequilibrium pruning](#ld-pruning)/[clumping](#ld-clumping)
 - Impute
   - [Zscore imputation](#impute-zscore)
   - [Beta and SE imputation](#impute-marginal-effect)
