@@ -53,7 +53,7 @@ Linkage Disequilibrium
 -----
 Here, we simply calculate LD by the Pearson correlation (r) of pairs of SNPs
 ```r
-ld <- LDcal(geno=geno, threads=1)
+ld <- LDcal(geno=ref.geno, threads=1)
 ```
 By default, it returns a standard square R matrix with dimension of m by m (m is the number of SNPs), which may cost huge space in memory with the increasing SNPs, users can direct a file on disk by parameter 'out' to store the LD matrix in 'big.matrix' format.
 
@@ -61,15 +61,25 @@ LD Score
 -----
 LD score is defined as the sum of LD r2 between a variant and all the variants in a region. 
 ```r
-ldscore <- LDsore(geno = geno, map = map, w = 100000, b=50000, threads = 1)
+ldscore <- LDsore(geno = ref.geno, map = ref.map, w = 100000, b=50000, threads = 1)
 ```
 In ```LDscore```, we provide a parameter 'r2', users could determine to calculate r or r2. By default, the 'r2' is adjusted by r2adj = r2 - [(1 - r2) / (n -2)], as well as 'r'.
 
 LD Pruning
 -----
+LD pruning is widely used to reduce linked SNPs on base of LD, when it finds a large correlation, it removes one SNP from the correlated pair, keeping the one with the largest minor allele frequency (MAF), thus possibly removing the first SNP. Then it goes on with the next SNP.
+```r
+snp <- LDprune(geno = ref.geno, map = ref.map, w = 100000, b=50000, threads = 1)
+```
 
 LD Clumping
 -----
+Different with pruning, clumping uses uses some statistic (usually p-value in the case of GWAS/PRS) to sort the SNPs by importance (e.g. keeping the most significant ones). It takes the first one (e.g. most significant SNP) and removes SNPs that are too correlated with this one in a window around it. As opposed to pruning, this procedure makes sure that this SNP is never removed. We could say that clumping is a trait-specific version of pruning, thus clumping is preferred in Polygenic Risk Score analysis.
+```r
+p_path <- system.file("extdata", "P.txt", package = "SumTool")
+pdata <- read.table(p_path, header = TRUE)
+snp <- LDclump(geno = ref.geno, map = ref.map, p = pdata, p.cutoff = 1, r2.cutoff = 0.25, w = 100000, threads = 1)
+```
 
 Impute Zscore
 -----
