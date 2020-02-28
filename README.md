@@ -65,6 +65,12 @@ ldscore <- LDsore(geno = geno, map = map, w = 100000, b=50000, threads = 1)
 ```
 In ```LDscore```, we provide a parameter 'r2', users could determine to calculate r or r2. By default, the 'r2' is adjusted by r2adj = r2 - [(1 - r2) / (n -2)], as well as 'r'.
 
+LD Pruning
+-----
+
+LD Clumping
+-----
+
 Impute Zscore
 -----
 For Zscore imputation, at least 6 columns should be provided in same order with the example for typed SNPs. No need to separate genome into chromosomes
