@@ -88,8 +88,8 @@ function(
 #' @param ref.map matrix (m1 * 5): SNPs, Chr, position, A1, A2
 #' @param typed.geno big.matrix (n2 * m2), individual level genotype for typed SNPs (this file is optional)
 #' @param typed matrix (m2 * 6): SNPs, Chr, position, A1, A2, Z
-#' @param w number, set the window size in bite, default 1000000
-#' @param b number, set the buffer size  in bite of each window, default 250000
+#' @param w number, set the window size in bp, default 1000000
+#' @param b number, set the buffer size in bp of each window, default 250000
 #' @param lambda number, ridge regression value on LD matrix of typed SNPs: solve(Rtt + diag(lambda))
 #' @param maf number, SNPs whose minor allele frequency are lower than set value will not be imputed
 #' @param correlation logical, if TRUE, the LD matrix will be constructed by correlation of all pairs
@@ -124,7 +124,7 @@ function(
 #' # Impute Zscore
 #' xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, typed.geno=typed.geno, threads=1)
 
-SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed = NULL, w = 1000000, b = 250000, lambda = NULL, maf = 0.000001, correlation = TRUE, verbose = TRUE, threads = 1)
+SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed = NULL, w = 1000000, b = 125000, lambda = NULL, maf = 0.000001, correlation = TRUE, verbose = TRUE, threads = 1)
 {
 
 	SImpute_bin <- function(ref.geno, ref.map, typed.geno = NULL, typed, lambda = 0.001, maf = 0.000001, correlation = TRUE, verbose = TRUE, threads = 0)
@@ -228,7 +228,7 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 	if(verbose && !is.null(typed.geno))	cat("Number of individuals in GWAS sample ", nrow(typed.geno), "\n", sep="")
 	if(verbose)	cat("MAF threshold is ", maf, "\n", sep="")
 	if(verbose)	cat("Window size is ", w / 1e6, "Mb", "\n", sep="")
-	if(verbose)	cat("Buffer size is ", b / 1e6, "Mb", "\n", sep="")
+	if(verbose)	cat("Buffer size is ", b / 1e3, "Kb", "\n", sep="")
 
 	if(verbose){
 		if(!correlation)	cat("Using haplotype for LD matrix\n")
@@ -243,7 +243,8 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 		chri_index <- ref.map[, 2] == chri
 		if(verbose)	cat("Loop on chromosome", chri, "with", sum(chri_index), "SNPs\n")
 		typed_chri_index <- typed[, 2] == chri
-		chri_pos_min <- min(ref.map[chri_index, 3])
+		# chri_pos_min <- min(ref.map[chri_index, 3])
+		chri_pos_min <- 1
 		chri_pos_max <- max(ref.map[chri_index, 3])
 		loop <- TRUE
 		wind_min <- 1
@@ -317,8 +318,8 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 #' @param ref.map matrix (m1 * 5): SNPs, Chr, position, A1, A2
 #' @param typed.geno big.matrix (n2 * m2), individual level genotype for typed SNPs (this file is optional)
 #' @param typed matrix (m2 * 8): SNPs, Chr, position, A1, A2, BETA, SE, N
-#' @param w number, set the window size in bite, default 1000000
-#' @param b number, set the buffer size  in bite of each window, default 250000
+#' @param w number, set the window size in bp, default 1000000
+#' @param b number, set the buffer size in bp of each window, default 250000
 #' @param lambda number, ridge regression value on LD matrix of typed SNPs: solve(Rtt + diag(lambda))
 #' @param maf number, SNPs whose minor allele frequency are lower than set value will not be imputed
 #' @param correlation logical, if TRUE, the LD matrix will be constructed by correlation of all pairs
@@ -353,7 +354,7 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 #' # Impute marginal effect and se
 #' xx <- SImputeB(ref.geno=ref.geno, ref.map=ref.map, typed=typed_b, typed.geno=typed.geno, threads=1)
 
-SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed = NULL, w = 1000000, b = 250000, lambda = NULL, maf = 0.000001, correlation = TRUE, verbose = TRUE, threads = 1)
+SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed = NULL, w = 1000000, b = 125000, lambda = NULL, maf = 0.000001, correlation = TRUE, verbose = TRUE, threads = 1)
 {
 
 	SImpute_bin <- function(ref.geno, ref.map, typed.geno = NULL, typed, lambda = 0.001, maf = 0.000001, correlation = TRUE, verbose = TRUE, threads = 0)
@@ -471,7 +472,7 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 	if(verbose) cat("Number of individuals in summary data ", n, "\n", sep="")
 	if(verbose)	cat("MAF threshold is ", maf, "\n", sep="")
 	if(verbose)	cat("Window size is ", w / 1e6, "Mb", "\n", sep="")
-	if(verbose)	cat("Buffer size is ", b / 1e6, "Mb", "\n", sep="")
+	if(verbose)	cat("Buffer size is ", b / 1e3, "Kb", "\n", sep="")
 
 	if(verbose){
 		if(!correlation)	cat("Using haplotype for LD matrix\n")
@@ -484,7 +485,8 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 		chri_index <- ref.map[, 2] == chri
 		if(verbose)	cat("Loop on chromosome", chri, "with", sum(chri_index), "SNPs\n")
 		typed_chri_index <- typed[, 2] == chri
-		chri_pos_min <- min(ref.map[chri_index, 3])
+		# chri_pos_min <- min(ref.map[chri_index, 3])
+		chri_pos_min <- 1
 		chri_pos_max <- max(ref.map[chri_index, 3])
 		loop <- TRUE
 		wind_min <- 1
@@ -625,7 +627,7 @@ LDcal <- function(geno = NULL, index = NULL, threads = 1, lambda = 0, chisq = 0,
 #' @param geno bigmemory (n * m), genotype coded as 0, 1, 2
 #' @param map data.frame, the genomic information of SNPs. The columns should be in the order of c("SNP", "Chr", "Pos", "A1", "A2")
 #' @param w int, size of windows in bp. Default is 1e6
-#' @param b number, set the buffer size  in bite of each window, default 500000
+#' @param b number, set the buffer size in bp of each window, default 125000
 #' @param r2 logical, calculate r2 or r
 #' @param adjust logical, whether to adjust the ldscore
 #' @param verbose logical, whether to print the log information
@@ -638,9 +640,9 @@ LDcal <- function(geno = NULL, index = NULL, threads = 1, lambda = 0, chisq = 0,
 #' data <- read_plink(bfile=ref_bfile_path, threads=1)
 #' geno <- data$geno
 #' map <- data$map
-#' ldscore <- LDsore(geno = geno, map = map, w = 100000, b=50000, threads = 1)
+#' ldscore <- LDsore(geno = geno, map = map, w = 100000, b=12500, threads = 1)
 
-LDsore<- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2 = TRUE, adjust = TRUE, verbose = TRUE, threads = 1)
+LDsore <- function(geno = NULL, map = NULL, w = 1000000, b = 125000, r2 = TRUE, adjust = TRUE, verbose = TRUE, threads = 1)
 {
 
 	if(verbose)	version.info()
@@ -669,13 +671,14 @@ LDsore<- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2 = TRUE, a
 	if(verbose)	cat("Number of total SNPs is ", ncol(geno) , "\n", sep="")
 	if(verbose)	cat("Number of individuals is ", nrow(geno) , "\n", sep="")
 	if(verbose)	cat("Window size is ", w / 1e6, "Mb", "\n", sep="")
-	if(verbose)	cat("Buffer size is ", b / 1e6, "Mb", "\n", sep="")
+	if(verbose)	cat("Buffer size is ", b / 1e3, "Kb", "\n", sep="")
 
 	res <- NULL
 	for(chri in chr){
 		chri_index <- map[, 2] == chri
 		if(verbose)	cat("Loop on chromosome", chri, "with", sum(chri_index), "SNPs\n")
-		chri_pos_min <- min(map[chri_index, 3])
+		# chri_pos_min <- min(map[chri_index, 3])
+		chri_pos_min <- 1
 		chri_pos_max <- max(map[chri_index, 3])
 		loop <- TRUE
 		wind_min <- chri_pos_min
@@ -697,7 +700,7 @@ LDsore<- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2 = TRUE, a
 		wind_min_b[1] <- chri_pos_min
 		wind_max_b[length(wind_max_b)] <- chri_pos_max
 		mcf <- function(i){
-			index1 <- which(chri_index & map[, 3] >= wind_min[i] & map[, 3] <= wind_max[i])
+			index1 <- which(chri_index & map[, 3] >= wind_min_b[i] & map[, 3] <= wind_max_b[i])
 			if(length(index1) != 0){
 				if(verbose)	cat("The ", i, "th window: Start[", min(map[index1, 3], na.rm = TRUE),"] ~ End[", max(map[index1, 3], na.rm = TRUE),"]\r", sep="")
 				lds <- LDscore_c(geno@address, index1, r2 = r2, adjust = adjust, threads = threads, verbose = verbose)
@@ -716,6 +719,226 @@ LDsore<- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2 = TRUE, a
 	colnames(res) <- c("SNP", "Chr", "Pos", "A1", "A2", "Maf", "mean_rsq", "snp_num", "max_rsq", "ldscore")
 	res <- res[match(map[, 1], res[, 1]), ]
 	t2 <- as.numeric(Sys.time())
+	if(verbose)	cat("Analysis finished:", as.character(Sys.time()), "\n")
+	if(verbose)	cat("Total Running time:", times(t2-t1), "\n")
+	return(res)
+}
+
+#' LD pruning
+#'
+#' To remove high correlated SNPs on base of r2 and MAF
+#'
+#' @param geno bigmemory (n * m), genotype coded as 0, 1, 2
+#' @param map data.frame, the genomic information of SNPs. The columns should be in the order of c("SNP", "Chr", "Pos", "A1", "A2")
+#' @param w int, size of windows in bp. Default is 1e6
+#' @param b int, set the buffer size in bp of each window, default 125000
+#' @param r2.cutoff double, the threshold of r2, smaller cutoff results in less remaining SNPs, default 0.25
+#' @param verbose logical, whether to print the log information
+#' @param threads int, the number of used threads for parallel process
+
+#' @examples
+#' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
+#' 
+#' # load data
+#' data <- read_plink(bfile=ref_bfile_path, threads=1)
+#' geno <- data$geno
+#' map <- data$map
+#' snp <- LDprune(geno = geno, map = map, w = 100000, b=50000, threads = 1)
+
+LDprune <- function(geno = NULL, map = NULL, w = 1000000, b = 125000, r2.cutoff = 0.25, verbose = TRUE, threads = 1)
+{
+
+	if(verbose)	version.info()
+	t1 <- as.numeric(Sys.time())
+	
+	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
+	#check parameter
+	if(verbose)	cat("Data and parameters check...")
+	if(is.null(geno))	stop("Please provide geno!")
+	if(is.null(map))	stop("Please provide map!")
+	if(ncol(map) != 5)	stop("Only 5 columns limited for map!")
+	if(ncol(geno) != nrow(map))	stop("Number of SNPs not equals between geno and map!")
+	map[, 3] <- as.numeric(as.character(map[, 3]))
+	map[, 1] <- as.character(map[, 1])
+	if(hasNA(geno@address, threads = threads))	stop("NA is not allowed in geno!")
+	if(verbose) cat("(Qualified)\n")
+
+	SNP_NA <- is.na(map[, 2 : 3])
+	if(sum(SNP_NA) != 0){
+		stop("NAs are not allowed in map!")
+	}
+
+	chr <- unique(map[, 2])
+
+	#confirm parameters
+	if(verbose)	cat("Number of chromosome is ", length(chr) , "\n", sep="")
+	if(verbose)	cat("Number of total SNPs is ", ncol(geno) , "\n", sep="")
+	if(verbose)	cat("Number of individuals is ", nrow(geno) , "\n", sep="")
+	if(verbose)	cat("Window size is ", w / 1e6, "Mb", "\n", sep="")
+	if(verbose)	cat("Buffer size is ", b / 1e3, "Kb", "\n", sep="")
+	if(verbose)	cat("r2 threshold ", r2.cutoff, "\n", sep="")
+
+	res <- NULL
+	for(chri in chr){
+		chri_index <- map[, 2] == chri
+		if(verbose)	cat("Loop on chromosome", chri, "with", sum(chri_index), "SNPs\n")
+		# chri_pos_min <- min(map[chri_index, 3])
+		chri_pos_min <- 1
+		chri_pos_max <- max(map[chri_index, 3])
+		loop <- TRUE
+		wind_min <- chri_pos_min
+		wind_max <- wind_min + w
+		while(loop){
+			wind_min <- c(wind_min, wind_max[length(wind_max)] + 1)
+			wind_max <- c(wind_max, wind_max[length(wind_max)] + w)
+			if((wind_max[length(wind_max)] + b) >= chri_pos_max)	loop <- FALSE
+		}
+		if(w >= chri_pos_max){
+			wind_min <- wind_min[1]
+			wind_max <- wind_max[1]
+		}
+		if(verbose)	cat("Total Number of windows: ", length(wind_min), "\n", sep="")
+		wind_max[length(wind_max)] <- chri_pos_max
+		wind_min_b <- wind_min - b
+		wind_max_b <- wind_max + b
+		wind_min_b[1] <- chri_pos_min
+		wind_max_b[length(wind_max_b)] <- chri_pos_max
+		mcf <- function(i){
+			index1 <- which(chri_index & map[, 3] >= wind_min_b[i] & map[, 3] <= wind_max_b[i])
+			if(length(index1) != 0){
+				if(verbose)	cat("The ", i, "th window: Start[", min(map[index1, 3], na.rm = TRUE),"] ~ End[", max(map[index1, 3], na.rm = TRUE),"]\r", sep="")
+				snp_indx <- LDprune_c(geno@address, index1, r2_cutoff = r2.cutoff, threads = threads, verbose = verbose)
+				bin <- map[index1[snp_indx == 1], ]
+				index <- (bin[, 3] >= wind_min[i]) & (bin[, 3] <= wind_max[i])
+				bin <- bin[index, 1]
+			}else{
+				bin <- NULL
+			}
+			return(bin)
+		}
+		chr_res <- unlist(lapply(1 : length(wind_min), mcf)); gc()
+		if(verbose)	cat("\n");
+		if(verbose)	cat("Pruned", sum(chri_index) - length(chr_res), "variants from chromosome", chri, "with", length(chr_res), "left\n")
+		res <- c(res, chr_res)
+	}
+	t2 <- as.numeric(Sys.time())
+	if(verbose)	cat("After pruned, total", length(res), "remains\n")
+	if(verbose)	cat("Analysis finished:", as.character(Sys.time()), "\n")
+	if(verbose)	cat("Total Running time:", times(t2-t1), "\n")
+	return(res)
+}
+
+#' LD clumping
+#'
+#' To remove high correlated SNPs on base of r2 and p-values
+#'
+#' @param geno bigmemory (n * m), genotype coded as 0, 1, 2
+#' @param map data.frame, the genomic information of SNPs. The columns should be in the order of c("SNP", "Chr", "Pos", "A1", "A2")
+#' @param p data.frame, at least 2 columns, the first column should be SNP names, the last column should be the pvalues
+#' @param w int, size of windows in bp. Default is 1e6
+#' @param r2.cutoff double, the threshold of r2, smaller cutoff results in less remaining SNPs, default 0.25
+#' @param p.cutoff double, the threshold of p-values, smaller threshold results in less remaining SNPs, default 1
+#' @param verbose logical, whether to print the log information
+#' @param threads int, the number of used threads for parallel process
+
+#' @examples
+#' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
+#' p_path <- system.file("extdata", "P.txt", package = "SumTool")
+
+#' # load data
+#' data <- read_plink(bfile=ref_bfile_path, threads=1)
+#' geno <- data$geno
+#' map <- data$map
+#' pdata <- read.table(p_path, header = TRUE)
+#' snp <- LDclump(geno = geno, map = map, p = pdata, p.cutoff = 1, r2.cutoff = 0.25, w = 100000, threads = 1)
+
+LDclump <- function(geno = NULL, map = NULL, p = NULL, w = 1000000, r2.cutoff = 0.25, p.cutoff = 1, verbose = TRUE, threads = 1)
+{
+
+	if(verbose)	version.info()
+	t1 <- as.numeric(Sys.time())
+	
+	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
+	#check parameter
+	if(verbose)	cat("Data and parameters check...")
+	if(is.null(geno))	stop("Please provide geno!")
+	if(is.null(map))	stop("Please provide map!")
+	if(is.null(p))	stop("Please provide summary statistic with p-values included at the end of column!")
+	if(ncol(p) < 2)	stop("At 2 columns should be provided, the first column should be SNP names, the last column should be the pvalues")
+	if(!is.numeric(p[, ncol(p)]))	stop("p-values should be numeric digitals")
+	if(ncol(map) != 5)	stop("Only 5 columns limited for map!")
+	if(ncol(geno) != nrow(map))	stop("Number of SNPs not equals between geno and map!")
+	map[, 3] <- as.numeric(as.character(map[, 3]))
+	map[, 1] <- as.character(map[, 1])
+	if(hasNA(geno@address, threads = threads))	stop("NA is not allowed in geno!")
+	if(verbose) cat("(Qualified)\n")
+
+	SNP_NA <- is.na(map[, 2 : 3])
+	if(sum(SNP_NA) != 0){
+		stop("NAs are not allowed in map!")
+	}
+
+	mergedSNP <- intersect(map[, 1], p[, 1])
+	if(length(mergedSNP) == 0)	stop("No shared SNPs between 'p' and 'map'!")
+	
+	#confirm parameters
+	if(verbose)	cat("Number of chromosome in geno ", length(unique(map[, 2])), "\n", sep="")
+	if(verbose)	cat("Number of total SNPs in geno ", ncol(geno), "\n", sep="")
+	if(verbose)	cat("Number of individuals in geno ", nrow(geno), "\n", sep="")
+	if(verbose)	cat("Number of SNPs with p-values ", nrow(p), "\n", sep="")
+	if(verbose)	cat("Number of shared SNPs ", length(mergedSNP), "\n", sep="")
+	if(verbose)	cat("Window size is ", w / 1e6, "Mb", "\n", sep="")
+	if(verbose)	cat("r2 threshold ", r2.cutoff, "\n", sep="")
+	if(verbose)	cat("P-value threshold ", p.cutoff, "\n", sep="")
+	p <- p[match(mergedSNP, p[, 1]), ]
+
+	# remove snps on base of pvalue
+	p <- p[p[, ncol(p)] <= p.cutoff, ]
+	if(verbose)	cat("Remove ", length(mergedSNP) - nrow(p), " SNPs on base of p-value threshold\n", sep="")
+	if(nrow(p) == 0)	stop("No SNPs left, please reset 'p.cutoff'!")
+
+	p.map <- map[match(p[, 1], map[, 1]), ]
+	chr <- unique(p.map[, 2])
+
+	res <- NULL
+	for(chri in chr){
+		chri_index <- p.map[, 2] == chri
+		if(verbose)	cat("Loop on chromosome", chri, "with", sum(chri_index), "SNPs\n")
+		# chri_pos_min <- min(p.map[chri_index, 3])
+		chri_pos_min <- 1
+		chri_pos_max <- max(p.map[chri_index, 3])
+		loop <- TRUE
+		wind_min <- chri_pos_min
+		wind_max <- wind_min + w
+		while(loop){
+			wind_min <- c(wind_min, wind_max[length(wind_max)] + 1)
+			wind_max <- c(wind_max, wind_max[length(wind_max)] + w)
+			if((wind_max[length(wind_max)]) >= chri_pos_max)	loop <- FALSE
+		}
+		if(w >= chri_pos_max){
+			wind_min <- wind_min[1]
+			wind_max <- wind_max[1]
+		}
+		if(verbose)	cat("Total Number of windows: ", length(wind_min), "\n", sep="")
+		wind_max[length(wind_max)] <- chri_pos_max
+		mcf <- function(i){
+			index1 <- which(chri_index & p.map[, 3] >= wind_min[i] & p.map[, 3] <= wind_max[i])
+			if(length(index1) != 0){
+				if(verbose)	cat("The ", i, "th window: Start[", min(p.map[index1, 3], na.rm = TRUE),"] ~ End[", max(p.map[index1, 3], na.rm = TRUE),"]\r", sep="")
+				snp_indx <- LDclump_c(geno@address, match(p.map[index1, 1], map[, 1]), r2_cutoff = r2.cutoff, p = p[index1, ncol(p)], threads = threads, verbose = verbose)
+				bin <- p.map[index1[snp_indx == 1], 1]
+			}else{
+				bin <- NULL
+			}
+			return(bin)
+		}
+		chr_res <- unlist(lapply(1 : length(wind_min), mcf)); gc()
+		if(verbose)	cat("\n");
+		if(verbose)	cat("Clumped", sum(chri_index) - length(chr_res), "variants from chromosome", chri, "with", length(chr_res), "left\n")
+		res <- c(res, chr_res)
+	}
+	t2 <- as.numeric(Sys.time())
+	if(verbose)	cat("After clumped, total", length(res), "remains\n")
 	if(verbose)	cat("Analysis finished:", as.character(Sys.time()), "\n")
 	if(verbose)	cat("Total Running time:", times(t2-t1), "\n")
 	return(res)
@@ -792,14 +1015,15 @@ SBLUP <- function(sumstat = NULL, geno = NULL, map = NULL, lambda = NULL, w = 1e
 	if(verbose)	cat("Ridge regression coefficient", lambda, "\n")
 	if(verbose)	cat("Number of shared typed SNPs is ", nrow(sumstat), "\n", sep="")
 	if(verbose)	cat("Window size is ", w / 1e6, "Mb", "\n", sep="")
-
+	if(verbose)	cat("Estimating Joint effect...\n") 
 	chr <- unique(sumstat[, 2])
 
 	res <- NULL
 	for(chri in chr){
 		chri_index <- sumstat[, 2] == chri
 		if(verbose)	cat("Loop on chromosome", chri, "with", sum(chri_index), "SNPs\n")
-		chri_pos_min <- min(sumstat[chri_index, 3])
+		# chri_pos_min <- min(sumstat[chri_index, 3])
+		chri_pos_min <- 1
 		chri_pos_max <- max(sumstat[chri_index, 3])
 		loop <- TRUE
 		wind_min <- chri_pos_min

@@ -5,7 +5,7 @@
 \title{Summary data based imputation on marginal effect}
 \usage{
 SImputeB(ref.geno = NULL, ref.map = NULL, typed.geno = NULL,
-  typed = NULL, w = 1e+06, b = 250000, lambda = NULL,
+  typed = NULL, w = 1e+06, b = 125000, lambda = NULL,
   maf = 1e-06, correlation = TRUE, verbose = TRUE, threads = 1)
 }
 \arguments{
@@ -17,9 +17,9 @@ SImputeB(ref.geno = NULL, ref.map = NULL, typed.geno = NULL,
 
 \item{typed}{matrix (m2 * 8): SNPs, Chr, position, A1, A2, BETA, SE, N}
 
-\item{w}{number, set the window size in bite, default 1000000}
+\item{w}{number, set the window size in bp, default 1000000}
 
-\item{b}{number, set the buffer size  in bite of each window, default 250000}
+\item{b}{number, set the buffer size in bp of each window, default 250000}
 
 \item{lambda}{number, ridge regression value on LD matrix of typed SNPs: solve(Rtt + diag(lambda))}
 

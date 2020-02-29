@@ -17,6 +17,14 @@ SImpute_LD_sparse_c <- function(pBigMat, index = NULL, chisq = 0L, lambda = 0, h
     .Call(`_SumTool_SImpute_LD_sparse_c`, pBigMat, index, chisq, lambda, haps, threads, verbose)
 }
 
+LDprune_c <- function(pBigMat, index, r2_cutoff = 0.2, threads = 0L, verbose = TRUE) {
+    .Call(`_SumTool_LDprune_c`, pBigMat, index, r2_cutoff, threads, verbose)
+}
+
+LDclump_c <- function(pBigMat, index, r2_cutoff, p, threads = 0L, verbose = TRUE) {
+    .Call(`_SumTool_LDclump_c`, pBigMat, index, r2_cutoff, p, threads, verbose)
+}
+
 ldreg_h2 <- function(z2, ld, wld, M, N, maxz2 = 30, nblock = 200L, rep = 3L) {
     .Call(`_SumTool_ldreg_h2`, z2, ld, wld, M, N, maxz2, nblock, rep)
 }

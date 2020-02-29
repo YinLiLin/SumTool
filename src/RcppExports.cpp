@@ -71,6 +71,37 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// LDprune_c
+arma::uvec LDprune_c(SEXP pBigMat, const IntegerVector index, const double r2_cutoff, const int threads, const bool verbose);
+RcppExport SEXP _SumTool_LDprune_c(SEXP pBigMatSEXP, SEXP indexSEXP, SEXP r2_cutoffSEXP, SEXP threadsSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type index(indexSEXP);
+    Rcpp::traits::input_parameter< const double >::type r2_cutoff(r2_cutoffSEXP);
+    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
+    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(LDprune_c(pBigMat, index, r2_cutoff, threads, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
+// LDclump_c
+arma::uvec LDclump_c(SEXP pBigMat, const IntegerVector index, const double r2_cutoff, const arma::vec p, const int threads, const bool verbose);
+RcppExport SEXP _SumTool_LDclump_c(SEXP pBigMatSEXP, SEXP indexSEXP, SEXP r2_cutoffSEXP, SEXP pSEXP, SEXP threadsSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type index(indexSEXP);
+    Rcpp::traits::input_parameter< const double >::type r2_cutoff(r2_cutoffSEXP);
+    Rcpp::traits::input_parameter< const arma::vec >::type p(pSEXP);
+    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
+    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(LDclump_c(pBigMat, index, r2_cutoff, p, threads, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
 // ldreg_h2
 SEXP ldreg_h2(const arma::vec& z2, const arma::vec& ld, const arma::vec& wld, const int M, const int N, const double maxz2, const int nblock, const int rep);
 RcppExport SEXP _SumTool_ldreg_h2(SEXP z2SEXP, SEXP ldSEXP, SEXP wldSEXP, SEXP MSEXP, SEXP NSEXP, SEXP maxz2SEXP, SEXP nblockSEXP, SEXP repSEXP) {
@@ -263,6 +294,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_SumTool_SImpute_LD_bigm_c", (DL_FUNC) &_SumTool_SImpute_LD_bigm_c, 8},
     {"_SumTool_SImpute_LD_norm_c", (DL_FUNC) &_SumTool_SImpute_LD_norm_c, 7},
     {"_SumTool_SImpute_LD_sparse_c", (DL_FUNC) &_SumTool_SImpute_LD_sparse_c, 7},
+    {"_SumTool_LDprune_c", (DL_FUNC) &_SumTool_LDprune_c, 5},
+    {"_SumTool_LDclump_c", (DL_FUNC) &_SumTool_LDclump_c, 6},
     {"_SumTool_ldreg_h2", (DL_FUNC) &_SumTool_ldreg_h2, 8},
     {"_SumTool_ldreg_rg", (DL_FUNC) &_SumTool_ldreg_rg, 8},
     {"_SumTool_LDscore_c", (DL_FUNC) &_SumTool_LDscore_c, 6},

@@ -11,7 +11,7 @@ Authors@R: c(
            role = c("aut", "cph"))
     )
 Maintainer: Lilin Yin <ylilin@163.com>
-Description: A tool for Summary data based analysis. It can do ld, ldscore computation, Zscore, Marginal effect imputation, summary data based SNP BLUP (SBLUP) solution, as well as LD regression for heritability and genetic correlation estimation. It featured with memory efficiency and parallel calculation. By the aid of package 'bigmemory', SumTool constructs memory-mapped files for genotype panel on disk instead of loading it all into Random Access Memory (RAM), which makes it possible to handle big data with limited computation resources. Additionally, all parallel processes are accelerated as fast as possible by OpenMP technology.
+Description: A tool for Summary data based analysis. It can do ld, ldscore computation, ld pruning and clumping, Zscore, Marginal effect imputation, summary data based SNP BLUP (SBLUP) solution, as well as LD regression for heritability and genetic correlation estimation. It featured with memory efficiency and parallel calculation. By the aid of package 'bigmemory', SumTool constructs memory-mapped files for genotype panel on disk instead of loading it all into Random Access Memory (RAM), which makes it possible to handle big data with limited computation resources. Additionally, all parallel processes are accelerated as fast as possible by OpenMP technology.
 License: GPL (>= 2)
 URL: https://github.com/YinLiLin/SumTool
 BugReports: https://github.com/YinLiLin/SumTool/issues
@@ -27,4 +27,4 @@ NeedsCompilation: yes
 Author: Lilin Yin [aut, cre, cph],
   Jian Zeng [aut, cph],
   Jian Yang [aut, cph]
-Packaged: 2020-02-25 06:38:36 UTC; lxl
+Packaged: 2020-02-28 07:06:29 UTC; lxl
