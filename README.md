@@ -205,7 +205,15 @@ Total Running time: 0s
 ```
 ***Visualize LD regression results***
 ```r
-
+chi2 <- (sumstat1$BETA / sumstat1$SE)^2
+ld <- ldscore[match(sumstat1[, 1], ldscore[, 1]), ncol(ldscore)]
+ld <- ld[chi2 < 80]
+chi2 <- chi2[chi2 < 80]
+group <- cut(ld, 50, labels=F)
+ld_block <- tapply(ld, group, mean)
+chi2_block <- tapply(chi2, group, mean)
+plot(ld_block, chi2_block, pch=19, xlab="LD Sore Bin", ylab="Mean x^2")
+abline(intercept, h2, col="red")
 ```
 
 Estimate rG
