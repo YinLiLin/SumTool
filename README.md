@@ -330,3 +330,19 @@ The 1th window: Start[734462] ~ End[998395]
 Analysis finished: 2020-02-25 19:30:24
 Total Running time: 0s
 ```
+
+Citation
+-----
+***LD score and regression:***<br>
+Bulik-Sullivan, Brendan K., et al. [LD Score regression distinguishes confounding from polygenicity in genome-wide association studies.](https://www.nature.com/articles/ng.3211) ***Nature genetics*** 47.3 (2015): 291.
+
+***Z-score imputation***<br>
+Pasaniuc, Bogdan, et al. [Fast and accurate imputation of summary statistics enhances evidence of functional enrichment.](https://academic.oup.com/bioinformatics/article/30/20/2906/2422225) ***Bioinformatics*** 30.20 (2014): 2906-2914.
+
+***Marginal effect imputation***<br>
+Zhu, Zhihong, et al. [Integration of summary data from GWAS and eQTL studies predicts complex trait gene targets.](https://www.nature.com/ng/journal/v48/n5/abs/ng.3538.html) ***Nature genetics*** 48.5 (2016): 481.
+
+***SBLUP***<br>
+Robinson, Matthew R., et al. [Genetic evidence of assortative mating in humans.](https://www.nature.com/articles/s41562-016-0016?fbclid=IwAR1hYuVgzjT1S4dMixO9-_IHRgCoFncZBBEU5ASCly0cN_9Kmk4ZtLGY3fY) ***Nature Human Behaviour*** 1.1 (2017): 0016.
+
+
