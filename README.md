@@ -22,7 +22,7 @@ Features
   - [Beta and SE imputation](#impute-marginal-effect)
 - LD regression
   - [Heritability](#estimate-h2)
-  - [Genetic correlation](#estimate-rg)<p align="right"> <a href="https://raw.githubusercontent.com/YinLiLin/R-CMplot/master/Figure/illumilla_60K.jpg"> <img src="https://raw.githubusercontent.com/YinLiLin/SumTool/master/pic/P1.png" height="80px"> </a> </p>
+  - [Genetic correlation](#estimate-rg)<img src="https://raw.githubusercontent.com/YinLiLin/SumTool/master/pic/P1.png" height="80px">
 - SBLUP
   - [Joint effect](#estimate-joint-effect)
 --- 
