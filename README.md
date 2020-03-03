@@ -20,7 +20,7 @@ Features
 - Impute
   - [Zscore imputation](#impute-zscore)
   - [Beta and SE imputation](#impute-marginal-effect)
-- LD regression<img src="https://raw.githubusercontent.com/YinLiLin/SumTool/master/pic/P1.png" height="150" align="right" />
+- LD regression<img src="https://raw.githubusercontent.com/YinLiLin/SumTool/master/pic/P1.png" height="80" align="right" />
   - [Heritability](#estimate-h2)
   - [Genetic correlation](#estimate-rg)
 - SBLUP
