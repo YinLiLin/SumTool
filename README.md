@@ -57,6 +57,10 @@ Linkage Disequilibrium
 Here, we simply calculate LD by the Pearson correlation (r) of pairs of SNPs
 ```r
 ld <- LDcal(geno=ref.geno, threads=1)
+# compute LD for a sumset of SNPs
+index <- 1:10
+geno_sub <- deepcopy(ref.geno, cols=index)
+ld_sub <- LDcal(geno_sub, threads=1)
 ```
 By default, it returns a standard square R matrix with dimension of m by m (m is the number of SNPs), which may cost huge space in memory with the increasing SNPs, users can direct a file on disk by parameter 'out' to store the LD matrix in 'big.matrix' format.
 
