@@ -57,7 +57,7 @@ Linkage Disequilibrium
 Here, we simply calculate LD by the Pearson correlation (r) of pairs of SNPs
 ```r
 ld <- LDcal(geno=ref.geno, threads=1)
-# compute LD for a sumset of SNPs
+# compute LD for a subset of SNPs
 index <- 1:10
 geno_sub <- deepcopy(ref.geno, cols=index)
 ld_sub <- LDcal(geno_sub, threads=1)
