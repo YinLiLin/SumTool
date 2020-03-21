@@ -68,7 +68,7 @@ LD Score
 -----
 LD score is defined as the sum of LD r2 between a variant and all the variants in a region. 
 ```r
-ldscore <- LDsore(geno = ref.geno, map = ref.map, w = 100000, b=50000, threads = 1)
+ldscore <- LDscore(geno = ref.geno, map = ref.map, w = 100000, b=50000, threads = 1)
 ```
 In ```LDscore```, we provide a parameter 'r2', users could determine to calculate r or r2. By default, the 'r2' is adjusted by r2adj = r2 - [(1 - r2) / (n -2)], as well as 'r'.
 
@@ -216,7 +216,7 @@ chi2 <- chi2[chi2 < 80]
 group <- cut(ld, 50, labels=F)
 ld_block <- tapply(ld, group, mean)
 chi2_block <- tapply(chi2, group, mean)
-plot(ld_block, chi2_block, pch=19, xlab="LD Sore Bin", ylab="Mean x^2")
+plot(ld_block, chi2_block, pch=19, xlab="LD Score Bin", ylab="Mean x^2")
 abline(intercept, h2, col="red")
 ```
 
