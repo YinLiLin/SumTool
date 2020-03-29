@@ -33,7 +33,7 @@ Please install ```devtools``` prior to installing ```SumTool```:
 ```r
 > devtools::install_github("YinLiLin/SumTool")
 ```
-After installed successfully, type ```library(SumTool)``` to use, then type ```lsf.str("package:SumTool")``` see details of all available functions and parameters.
+After installed successfully, type ```library(SumTool)``` to use, then type ```lsf.str("package:SumTool")``` to see details of all available functions and parameters.
 
 Genotype Converting
 -----
