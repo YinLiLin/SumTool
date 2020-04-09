@@ -5,10 +5,11 @@ version.info <- function(width=50)
     } else {
         version <- as.character(packageVersion(getPackageName()))
     }
+    Author <- "Lilin Yin [ylilin@163.com]"
 	cat(rep("*", width), "\n", sep="")
-	cat("* Summary statistics analysis Tool (SumTool)", rep(" ", width-45), "*", "\n", sep="")
+	cat("* Summary statistic analysis Tool (SumTool)", rep(" ", width-44), "*", "\n", sep="")
 	cat("* Version ", version, rep(" ", width-nchar(version)-11), "*", "\n", sep="")
-	cat("* Author: Lilin Yin", rep(" ", width-20), "*", "\n", sep="")
+	cat("* Author: ", Author, rep(" ", width-11-nchar(Author)), "*", "\n", sep="")
 	cat("* GPL-3.0 License", rep(" ", width-18), "*", "\n", sep="")
 	cat(rep("*", width), "\n", sep="")
 }
@@ -232,12 +233,12 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 	}	
 	if(sum(is.na(typed[, -c(1:5)])) != 0)	stop(paste("NA is not allowed in Zscore!", sep=""))
 	if(ncol(ref.geno) != nrow(ref.map))	stop("Number of SNPs not equals between ref.geno and ref.map!")
-	if(hasNA(ref.geno@address, threads = threads))	stop("NA is not allowed in ref.geno!")
+	#if(hasNA(ref.geno@address, threads = threads))	stop("NA is not allowed in ref.geno!")
 	if(!is.null(typed.geno)){
 		if(!is.big.matrix(typed.geno))	stop("genotype should be in 'big.matrix' format!")
 		if(ncol(typed.geno) != nrow(typed))	stop("Number of SNPs not equals between typed.geno and typed!")
 	}
-	if(!is.null(typed.geno) && hasNA(typed.geno@address, threads = threads))	stop("NA is not allowed in typed.geno!")
+	#if(!is.null(typed.geno) && hasNA(typed.geno@address, threads = threads))	stop("NA is not allowed in typed.geno!")
 
 	SNP_NA <- is.na(ref.map[, 3]) | ref.map[, 3] == 0 | ref.map[, 3] == -9
 	if(sum(SNP_NA) != 0){
@@ -467,12 +468,12 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 	}
 	if(sum(is.na(typed[, -c(1:5)])) != 0)	stop(paste("NA is not allowed in typed information!", sep=""))
 	if(ncol(ref.geno) != nrow(ref.map))	stop("Number of SNPs not equals between ref.geno and ref.map!")
-	if(hasNA(ref.geno@address, threads = threads))	stop("NA is not allowed in ref.geno!")
+	#if(hasNA(ref.geno@address, threads = threads))	stop("NA is not allowed in ref.geno!")
 	if(!is.null(typed.geno)){
 		if(!is.big.matrix(typed.geno))	stop("genotype should be in 'big.matrix' format!")
 		if(ncol(typed.geno) != nrow(typed))	stop("Number of SNPs not equals between typed.geno and typed!")
 	}
-	if(!is.null(typed.geno) && hasNA(typed.geno@address, threads = threads))	stop("NA is not allowed in typed.geno!")
+	#if(!is.null(typed.geno) && hasNA(typed.geno@address, threads = threads))	stop("NA is not allowed in typed.geno!")
 
 	SNP_NA <- is.na(ref.map[, 3]) | ref.map[, 3] == 0 | ref.map[, 3] == -9
 	if(sum(SNP_NA) != 0){
@@ -739,7 +740,7 @@ LDscore <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2 = TRUE,
 	for(i in 1 : ncol(map)){
 		if(is.factor(map[, i]))	map[, i] <- as.character.factor(map[, i])
 	}
-	if(hasNA(geno@address, threads = threads))	stop("NA is not allowed in geno!")
+	#if(hasNA(geno@address, threads = threads))	stop("NA is not allowed in geno!")
 	if(verbose) cat("(Qualified)\n")
 
 	SNP_NA <- is.na(map[, 2 : 3])
@@ -850,7 +851,7 @@ LDprune <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2.cutoff 
 	for(i in 1 : ncol(map)){
 		if(is.factor(map[, i]))	map[, i] <- as.character.factor(map[, i])
 	}
-	if(hasNA(geno@address, threads = threads))	stop("NA is not allowed in geno!")
+	#if(hasNA(geno@address, threads = threads))	stop("NA is not allowed in geno!")
 	if(verbose) cat("(Qualified)\n")
 
 	SNP_NA <- is.na(map[, 2 : 3])
@@ -966,7 +967,7 @@ LDclump <- function(geno = NULL, map = NULL, p = NULL, w = 1000000, r2.cutoff = 
 	for(i in 1 : ncol(map)){
 		if(is.factor(map[, i]))	map[, i] <- as.character.factor(map[, i])
 	}
-	if(hasNA(geno@address, threads = threads))	stop("NA is not allowed in geno!")
+	#if(hasNA(geno@address, threads = threads))	stop("NA is not allowed in geno!")
 	if(verbose) cat("(Qualified)\n")
 
 	SNP_NA <- is.na(map[, 2 : 3])
@@ -1090,7 +1091,7 @@ SBLUP <- function(sumstat = NULL, geno = NULL, map = NULL, lambda = NULL, w = 1e
 	if(ncol(geno) != nrow(map))	stop("Number of SNPs not equals between geno and map!")
 	if(any(duplicated(map[, 1])))	stop("duplicated SNP names exist in map file!")
 	if(any(duplicated(sumstat[, 1])))	stop("duplicated SNP names exist in sumstat file!")
-	if(hasNA(geno@address, threads = threads))	stop("NA is not allowed in geno!")
+	#if(hasNA(geno@address, threads = threads))	stop("NA is not allowed in geno!")
 	if(is.null(lambda))	stop("'lambda should be provided! \nlambda=m*((1/h2)-1), where m is the number of SNPs, h2 is the heritability of trait.")
 	if(verbose) cat("(Qualified)\n")
 
