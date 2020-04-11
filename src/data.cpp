@@ -65,16 +65,16 @@ void rData_c(std::string bed_file, XPtr<BigMatrix> pMat, const long maxLine, con
 	int r, c, x;
 	uint8_t p;
 
-	int cond_n = 0;
-	for (int i = 0; i < n_block; i++) {
-		cond_n += min(buffer_size, (length - 3 - i * buffer_size));
-	}
+// 	int cond_n = 0;
+// 	for (int i = 0; i < n_block; i++) {
+// 		cond_n += min(buffer_size, (length - 3 - i * buffer_size));
+// 	}
 
 	MinimalProgressBar_plus pb;
 	// Progress progress(cond_n, verbose);
-	Progress progress(cond_n, verbose, pb);
+// 	Progress progress(cond_n, verbose, pb);
 	// Rcout << sum(cond) << endl;
-	// Progress progress(n_block, verbose, pb);
+	Progress progress(n_block, verbose, pb);
 
 	long block_start;
 	for (int i = 0; i < n_block; i++) {
@@ -97,9 +97,9 @@ void rData_c(std::string bed_file, XPtr<BigMatrix> pMat, const long maxLine, con
 					miss[r] = 1;
 				}
 			}
-			progress.increment();
+// 			progress.increment();
 		}
-		// progress.increment();
+		progress.increment();
 	}
 	fclose(fin);
 
