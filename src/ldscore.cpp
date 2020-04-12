@@ -32,7 +32,7 @@ SEXP LDscore_c(XPtr<BigMatrix> pMat, const IntegerVector index, const bool r2 = 
 	if(r2){
 		#pragma omp parallel for schedule(dynamic) private(j, p1, m1, s1, s2, i, k, p12, p2, m2, r, rr)
 		for (j = 0; j < m; j++){
-			ldmat(j, j) = 0;
+			ldmat(j, j) = 1;
 			p1 = sd_all[j];
 			m1 = mean_all[j];
 			s1 = sum_all[j];
@@ -58,7 +58,7 @@ SEXP LDscore_c(XPtr<BigMatrix> pMat, const IntegerVector index, const bool r2 = 
 	}else{
 		#pragma omp parallel for schedule(dynamic) private(j, p1, m1, s1, s2, i, k, p12, p2, m2, r)
 		for (j = 0; j < m; j++){
-			ldmat(j, j) = 0;
+			ldmat(j, j) = 1;
 			p1 = sd_all[j];
 			m1 = mean_all[j];
 			s1 = sum_all[j];
@@ -82,13 +82,12 @@ SEXP LDscore_c(XPtr<BigMatrix> pMat, const IntegerVector index, const bool r2 = 
 		}
 	}
 
-	arma::mat ldscore(m, 5);
+	arma::mat ldscore(m, 4);
 	for(int i = 0; i < m; i++){
 		ldscore(i, 0) = freq_all[i];
-		ldscore(i, 2) = m;
-		ldscore(i, 3) = ldmat.col(i).max();
-		ldscore(i, 4) = sum(ldmat.col(i)) + 1;
-		ldscore(i, 1) = ldscore(i, 4) / m;
+		ldscore(i, 1) = m;
+		ldscore(i, 3) = ldscore(i, 2) * m;
+		ldscore(i, 2) = ldmat.col(i).mean();
 	}
 
 	return wrap(ldscore);
