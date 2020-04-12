@@ -800,7 +800,7 @@ LDscore <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2 = TRUE,
 		if(verbose)	cat("\n");
 		res <- rbind(res, do.call(rbind, chr_res))
 	}
-	colnames(res) <- c("SNP", "Chr", "Pos", "A1", "A2", "Maf", "mean_rsq", "snp_num", "ldscore")
+	colnames(res) <- c("SNP", "Chr", "Pos", "A1", "A2", "Maf", "snp_num", "mean_rsq", "ldscore")
 	res <- res[match(map[, 1], res[, 1]), ]
 	t2 <- as.numeric(Sys.time())
 	if(verbose)	cat("Summary of LD Scores:\n")
