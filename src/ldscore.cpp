@@ -83,11 +83,12 @@ SEXP LDscore_c(XPtr<BigMatrix> pMat, const IntegerVector index, const bool r2 = 
 	}
 
 	arma::mat ldscore(m, 4);
+	rowvec colsum = sum(ldmat, 0);
 	for(int i = 0; i < m; i++){
 		ldscore(i, 0) = freq_all[i];
 		ldscore(i, 1) = m;
-		ldscore(i, 3) = ldscore(i, 2) * m;
-		ldscore(i, 2) = ldmat.col(i).mean();
+		ldscore(i, 2) = colsum[i] / m;
+		ldscore(i, 3) = colsum[i];
 	}
 
 	return wrap(ldscore);
