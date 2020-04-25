@@ -1208,7 +1208,8 @@ LDreg <- function(sumstat = NULL, ldscore = NULL, wld = NULL, maxz2 = 80, maf = 
 
 		# order ldscore by the positin on genome
 		ldscore <- ldscore[order(ldscore[, 2], ldscore[, 3]), ]
-
+		M <- sum(ldscore[, 6] > maf)
+		
 		if(!is.null(wld)){
 			if(ncol(as.matrix(wld)) < 2)	stop("At least 2 columns should be provided!")
 			if(sum(is.na(wld[, ncol(wld)])) != 0)	stop("NA is not allowed in wld!")
@@ -1251,7 +1252,6 @@ LDreg <- function(sumstat = NULL, ldscore = NULL, wld = NULL, maxz2 = 80, maf = 
 			sumstat <- sumstat[indx, ]
 		}
 		if(verbose)	cat("After merging with reference panel", nrow(sumstat), "SNPs remain", "\n")
-		M <- sum(ldscore[, 6] > maf)
 		N <- mean(sumstat[, 8])
 		if(verbose)	cat("Total", M, "SNPs that MAF >", maf, "\n")
 		if(verbose)	cat("Total", N, "individuals included", "\n")
