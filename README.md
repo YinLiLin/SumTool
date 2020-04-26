@@ -286,7 +286,7 @@ Total Running time: 0s
 
 Estimate Joint Effect
 -----
-To estimate joint effect, in addition to providing the summary statistics with beta included, the ridge regression lambda also should be calculated in prior. lambda = m * (1 / h2 - 1) where m is the total number of SNPs used in this analysis and h2 (known as heritability) is the proportion of variance in the phenotype explained by all SNPs.
+To estimate joint effect, in addition to providing the summary statistics with beta included, the ridge regression lambda should be calculated in prior. lambda = m * (1 / h2 - 1) where m is the total number of SNPs used in this analysis and h2 (known as heritability) is the proportion of variance in the phenotype explained by all SNPs.
 ```r
 sumstat_path <- system.file("extdata", "typed.marginal", package = "SumTool")
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
