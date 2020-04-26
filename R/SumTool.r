@@ -1147,8 +1147,7 @@ SBLUP <- function(sumstat = NULL, geno = NULL, map = NULL, lambda = NULL, w = 1e
 			if(length(index1) != 0){
 				if(verbose)	cat("The ", i, "th window: Start[", min(sumstat[index1, 3], na.rm = TRUE),"] ~ End[", max(sumstat[index1, 3], na.rm = TRUE),"]\r", sep="")
 				effect <- sblup_bin(geno@address, N, index2, sumstat[index1, 6], lambda = lambda, verbose = verbose, threads = threads)
-				colnames(effect) <- "Effect"
-				effect <- data.frame(sumstat[index1, 1 : 5], effect)
+				effect <- as.vector(effect)
 			}else{
 				effect <- NULL
 			}
@@ -1156,9 +1155,10 @@ SBLUP <- function(sumstat = NULL, geno = NULL, map = NULL, lambda = NULL, w = 1e
 		}
 		chr_res <- lapply(1 : length(wind_min), mcf); gc()
 		if(verbose)	cat("\n");
-		res <- rbind(res, do.call(rbind, chr_res))
+		res <- c(res, unlist(chr_res))
 	}
-	colnames(res)[1 : 5] <- c("SNP", "Chr", "Pos", "A1", "A2")
+	res <- cbind(sumstat[, c(1 : 5)], res)
+	colnames(res)[1 : 5] <- c("SNP", "Chr", "Pos", "A1", "A2", "Effect")
 	t2 <- as.numeric(Sys.time())
 	if(verbose)	cat("Analysis finished:", as.character(Sys.time()), "\n")
 	if(verbose)	cat("Total Running time:", times(t2-t1), "\n")
