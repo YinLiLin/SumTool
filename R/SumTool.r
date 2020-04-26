@@ -1158,7 +1158,7 @@ SBLUP <- function(sumstat = NULL, geno = NULL, map = NULL, lambda = NULL, w = 1e
 		res <- c(res, unlist(chr_res))
 	}
 	res <- cbind(sumstat[, c(1 : 5)], res)
-	colnames(res)[1 : 5] <- c("SNP", "Chr", "Pos", "A1", "A2", "Effect")
+	colnames(res) <- c("SNP", "Chr", "Pos", "A1", "A2", "Effect")
 	t2 <- as.numeric(Sys.time())
 	if(verbose)	cat("Analysis finished:", as.character(Sys.time()), "\n")
 	if(verbose)	cat("Total Running time:", times(t2-t1), "\n")
