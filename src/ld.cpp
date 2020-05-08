@@ -5,11 +5,7 @@
 template <typename T>
 void SImpute_LD_bigm_c(arma::mat & genomat, XPtr<BigMatrix> ldMat, const Nullable<IntegerVector> index = R_NilValue, const int chisq = 0, const double lambda = 0, const bool haps = false, const int threads=0, const bool verbose=true){
 
-	if (threads == 0) {
-		omp_set_num_threads(omp_get_num_procs());
-	}else if(threads > 0) {
-		omp_set_num_threads(threads);
-	}
+	omp_setup(threads);
 
 	MatrixAccessor<T> ldmat = MatrixAccessor<T>(*ldMat);
 
@@ -37,13 +33,14 @@ void SImpute_LD_bigm_c(arma::mat & genomat, XPtr<BigMatrix> ldMat, const Nullabl
 
 	if(index.isNotNull()){
 		index_ = as<IntegerVector>(index) - 1;
+		int index_len = index_.size();
 		if(haps){
 
 			#pragma omp parallel for schedule(dynamic) private(j, i, x11, x12, x21, x22, k, gi, gj, p1, p2, q1, q2, r)
 			for (j = 0; j < m; j++){
 				if ( ! Progress::check_abort() ) {
 					p.increment();
-					for(i = 0; i < index_.size(); i++){
+					for(i = 0; i < index_len; i++){
 						if(index_[i] == j){
 								r = 1 + lambda;
 						}else{
@@ -110,7 +107,7 @@ void SImpute_LD_bigm_c(arma::mat & genomat, XPtr<BigMatrix> ldMat, const Nullabl
 				if ( ! Progress::check_abort() ) {
 					p.increment();
 
-					for(i = 0; i < index_.size(); i++){
+					for(i = 0; i < index_len; i++){
 						if(index_[i] == j){
 							r = 1 + lambda;
 						}else{
@@ -250,11 +247,7 @@ void SImpute_LD_bigm_c(arma::mat & genomat, SEXP ldbigmat, const Nullable<Intege
 // template <typename T>
 // void SImpute_LD_bigm_c(XPtr<BigMatrix> pMat, const SEXP ldbigmat, const Nullable<IntegerVector> index = R_NilValue, const int chisq = 0, const double lambda = 0, const bool haps = false, const int threads=0, const bool verbose=true){
 
-// 	if (threads == 0) {
-// 		omp_set_num_threads(omp_get_num_procs());
-// 	}else if(threads > 0) {
-// 		omp_set_num_threads(threads);
-// 	}
+// 	omp_setup(threads);
 
 // 	MatrixAccessor<T> genomat = MatrixAccessor<T>(*pMat);
 // 	XPtr<BigMatrix> ldbigMat(ldbigmat);
@@ -508,11 +501,7 @@ void SImpute_LD_bigm_c(arma::mat & genomat, SEXP ldbigmat, const Nullable<Intege
 template <typename T>
 SEXP SImpute_LD_norm_c(XPtr<BigMatrix> pMat, const Nullable<IntegerVector> index = R_NilValue, const int chisq = 0, const double lambda = 0, const bool haps = false, const int threads=0, const bool verbose=true){
 
-	if (threads == 0) {
-		omp_set_num_threads(omp_get_num_procs());
-	}else if(threads > 0) {
-		omp_set_num_threads(threads);
-	}
+	omp_setup(threads);
 
 	MatrixAccessor<T> genomat = MatrixAccessor<T>(*pMat);
 
@@ -760,11 +749,7 @@ SEXP SImpute_LD_norm_c(SEXP pBigMat, const Nullable<IntegerVector> index = R_Nil
 template <typename T>
 SEXP SImpute_LD_sparse_c(XPtr<BigMatrix> pMat, const Nullable<IntegerVector> index = R_NilValue, const int chisq = 0, const double lambda = 0, const bool haps = false, const int threads=0, const bool verbose=true){
 
-	if (threads == 0) {
-		omp_set_num_threads(omp_get_num_procs());
-	}else if(threads > 0) {
-		omp_set_num_threads(threads);
-	}
+	omp_setup(threads);
 
 	MatrixAccessor<T> genomat = MatrixAccessor<T>(*pMat);
 

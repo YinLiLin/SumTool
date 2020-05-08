@@ -3,11 +3,7 @@
 template <typename T>
 SEXP LDscore_c(XPtr<BigMatrix> pMat, const IntegerVector index, const bool r2 = true, const bool adjust = false, const int threads=0, const bool verbose=true){
 	
-	if (threads == 0) {
-		omp_set_num_threads(omp_get_num_procs());
-	}else if(threads > 0) {
-		omp_set_num_threads(threads);
-	}
+	omp_setup(threads);
 
 	MatrixAccessor<T> genomat = MatrixAccessor<T>(*pMat);
 

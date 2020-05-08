@@ -3,11 +3,8 @@
 template <typename T>
 SEXP sblup_bin(XPtr<BigMatrix> pMat, const double n_gwas, const IntegerVector typed_index, const arma::vec typed_value, const double lambda, const bool verbose = true, const int threads = 0){
 
-	if (threads == 0) {
-		omp_set_num_threads(omp_get_num_procs());
-	}else if(threads > 0) {
-		omp_set_num_threads(threads);
-	}
+	omp_setup(threads);
+	
 	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
 
 	int n = typed_index.size();

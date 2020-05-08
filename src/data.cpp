@@ -1,5 +1,5 @@
 #include <Rcpp.h>
-#include <omp.h>
+#include "omp_set.h"
 #include <fstream>
 #include <bigmemory/BigMatrix.h>
 #include <bigmemory/MatrixAccessor.hpp>
@@ -22,11 +22,7 @@ void rData_c(std::string bed_file, XPtr<BigMatrix> pMat, const long maxLine, con
 		0 != bed_file.compare(bed_file.length() - ending.length(), ending.length(), ending))
 		bed_file += ending;
 
-	if (threads == 0) {
-		omp_set_num_threads(omp_get_num_procs());
-	}else if(threads > 0) {
-		omp_set_num_threads(threads);
-	}
+	omp_setup(threads);
 
 	long n = pMat->nrow() / 4;  // 4 individual = 1 bit
 	int m = pMat->ncol();
@@ -170,11 +166,7 @@ void rData_c(std::string bfile, const SEXP pBigMat, const long maxLine, const bo
 template <typename T>
 void wData_c(XPtr<BigMatrix> pMat, std::string bed_file, double NA_C, int threads=0, bool verbose=true) {
     
-	if (threads == 0) {
-		omp_set_num_threads(omp_get_num_procs());
-	}else if(threads > 0) {
-		omp_set_num_threads(threads);
-	}
+	omp_setup(threads);
 
     // check input
     string ending = ".bed";
@@ -185,9 +177,9 @@ void wData_c(XPtr<BigMatrix> pMat, std::string bed_file, double NA_C, int thread
     
     // define
     T c;
-	long m = pMat->ncol();
-	long nid = pMat->nrow();
-    long n = pMat->nrow() / 4;  // 4 individual = 1 bit
+	int m = pMat->ncol();
+	int nid = pMat->nrow();
+    int n = pMat->nrow() / 4;  // 4 individual = 1 bit
     if (n % 4 != 0) 
         n++;
     

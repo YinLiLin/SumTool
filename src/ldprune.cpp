@@ -3,11 +3,7 @@
 template <typename T>
 arma::uvec LDprune_c(XPtr<BigMatrix> pMat, const IntegerVector index, const double r2_cutoff = 0.2, const int threads=0, const bool verbose=true){
 	
-	if (threads == 0) {
-		omp_set_num_threads(omp_get_num_procs());
-	}else if(threads > 0) {
-		omp_set_num_threads(threads);
-	}
+	omp_setup(threads);
 
 	MatrixAccessor<T> genomat = MatrixAccessor<T>(*pMat);
 
@@ -119,11 +115,7 @@ arma::uvec LDprune_c(SEXP pBigMat, const IntegerVector index, const double r2_cu
 template <typename T>
 arma::uvec LDclump_c(XPtr<BigMatrix> pMat, const IntegerVector index, const double r2_cutoff, const arma::vec p, const int threads=0, const bool verbose=true){
 	
-	if (threads == 0) {
-		omp_set_num_threads(omp_get_num_procs());
-	}else if(threads > 0) {
-		omp_set_num_threads(threads);
-	}
+	omp_setup(threads);
 
 	MatrixAccessor<T> genomat = MatrixAccessor<T>(*pMat);
 

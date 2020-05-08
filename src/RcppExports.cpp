@@ -202,6 +202,34 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// getCol
+NumericVector getCol(SEXP pBigMat, const int col);
+RcppExport SEXP _SumTool_getCol(SEXP pBigMatSEXP, SEXP colSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
+    Rcpp::traits::input_parameter< const int >::type col(colSEXP);
+    rcpp_result_gen = Rcpp::wrap(getCol(pBigMat, col));
+    return rcpp_result_gen;
+END_RCPP
+}
+// glm_c
+SEXP glm_c(const arma::vec y, const arma::mat X, const IntegerVector indx, SEXP pBigMat, const bool verbose, const int threads);
+RcppExport SEXP _SumTool_glm_c(SEXP ySEXP, SEXP XSEXP, SEXP indxSEXP, SEXP pBigMatSEXP, SEXP verboseSEXP, SEXP threadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type indx(indxSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
+    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(glm_c(y, X, indx, pBigMat, verbose, threads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sblup_bin
 SEXP sblup_bin(SEXP pBigMat, const double n_gwas, const IntegerVector typed_index, const arma::vec typed_value, const double lambda, const bool verbose, const int threads);
 RcppExport SEXP _SumTool_sblup_bin(SEXP pBigMatSEXP, SEXP n_gwasSEXP, SEXP typed_indexSEXP, SEXP typed_valueSEXP, SEXP lambdaSEXP, SEXP verboseSEXP, SEXP threadsSEXP) {
@@ -351,6 +379,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_SumTool_ldreg_h2", (DL_FUNC) &_SumTool_ldreg_h2, 8},
     {"_SumTool_ldreg_rg", (DL_FUNC) &_SumTool_ldreg_rg, 8},
     {"_SumTool_LDscore_c", (DL_FUNC) &_SumTool_LDscore_c, 6},
+    {"_SumTool_getCol", (DL_FUNC) &_SumTool_getCol, 2},
+    {"_SumTool_glm_c", (DL_FUNC) &_SumTool_glm_c, 6},
     {"_SumTool_sblup_bin", (DL_FUNC) &_SumTool_sblup_bin, 7},
     {"_SumTool_SImputeZ_bin_c", (DL_FUNC) &_SumTool_SImputeZ_bin_c, 8},
     {"_SumTool_SImputeZ_ld_bin_c", (DL_FUNC) &_SumTool_SImputeZ_ld_bin_c, 9},

@@ -4,11 +4,8 @@
 template <typename T>
 SEXP SImputeZ_bin_c(XPtr<BigMatrix> pMat, const IntegerVector typed_index, const arma::mat typed_value, const double lambda = 0.0, const double maf = 0.01, const bool haps = false, const bool verbose = true, const int threads = 0){
 
-	if (threads == 0) {
-		omp_set_num_threads(omp_get_num_procs());
-	}else if(threads > 0) {
-		omp_set_num_threads(threads);
-	}
+	omp_setup(threads);
+
 	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
 
 	int n = pMat->ncol();
@@ -40,8 +37,10 @@ SEXP SImputeZ_bin_c(XPtr<BigMatrix> pMat, const IntegerVector typed_index, const
 
 	IntegerVector eff_index = which_c(freq_all[typed_index_], maf, 6);
 
-	for(i = 0; i < typed_index_.size(); i++){
-		for(j = 0; j < typed_value.n_cols; j++){
+	int typed_n = typed_index_.size();
+	int typed_ncol = typed_value.n_cols;
+	for(i = 0; i < typed_n; i++){
+		for(j = 0; j < typed_ncol; j++){
 			impz(typed_index_[i], j) = typed_value(i, j);
 			// r2pred[typed_index_[i], j] = 1;
 		}
@@ -150,13 +149,14 @@ SEXP SImputeZ_bin_c(XPtr<BigMatrix> pMat, const IntegerVector typed_index, const
 	arma::mat beta;
 
 	// Progress p(nontyped_index_.size(), verbose);
-	Progress p(nontyped_index_.size(), verbose, pb);
+	int nontyped_n = nontyped_index_.size();
+	Progress p(nontyped_n, verbose, pb);
 	arma::vec Rit(m); Rit.fill(0);
 
 	if(haps){
 
 		#pragma omp parallel for schedule(dynamic) firstprivate(Rit) private(j, i, x11, x12, x21, x22, k, gi, gj, p1, p2, q1, q2, r, beta)
-		for(j = 0; j < nontyped_index_.size(); j++){
+		for(j = 0; j < nontyped_n; j++){
 			p1 = freq_all[nontyped_index_[j]];
 			if ( ! Progress::check_abort() ) {
 				p.increment();
@@ -220,7 +220,7 @@ SEXP SImputeZ_bin_c(XPtr<BigMatrix> pMat, const IntegerVector typed_index, const
 	}else{
 
 		#pragma omp parallel for schedule(dynamic) firstprivate(Rit) private(j, s1, s2, p1, m1, i, k, p12, p2, m2, r, beta)
-		for(j = 0; j < nontyped_index_.size(); j++){
+		for(j = 0; j < nontyped_n; j++){
 
 			p1 = freq_all[nontyped_index_[j]];
 			m1 = mean_all[nontyped_index_[j]];
@@ -291,11 +291,7 @@ SEXP SImputeZ_bin_c(SEXP pBigMat, const IntegerVector typed_index, const arma::m
 template <typename T>
 SEXP SImputeZ_ld_bin_c(XPtr<BigMatrix> pMat, XPtr<BigMatrix> pMat_G, const IntegerVector typed_index, const arma::mat typed_value, const double lambda = 0.0, const double maf = 0.01, const bool haps = false, const bool verbose = true, const int threads = 0){
 
-	if (threads == 0) {
-		omp_set_num_threads(omp_get_num_procs());
-	}else if(threads > 0) {
-		omp_set_num_threads(threads);
-	}
+	omp_setup(threads);
 
 	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
 	MatrixAccessor<T> bigm_G = MatrixAccessor<T>(*pMat_G);
@@ -337,16 +333,19 @@ SEXP SImputeZ_ld_bin_c(XPtr<BigMatrix> pMat, XPtr<BigMatrix> pMat_G, const Integ
 	}
 
 	// typed SNPs needn't to impute
-	for(i = 0; i < typed_index_.size(); i++){
-		for(j = 0; j < typed_value.n_cols; j++){
+	int typed_n = typed_index_.size();
+	int typed_ncol = typed_value.n_cols;
+	for(i = 0; i < typed_n; i++){
+		for(j = 0; j < typed_ncol; j++){
 			impz(typed_index_[i], j) = typed_value(i, j);
 			// r2pred[typed_index_[i], j] = 1;
 		}
 	}
 
 	IntegerVector index_ = typed_index_[eff_index];
-	arma::mat eff_typed(eff_index.size(), typed_value.n_cols);
-	for(i = 0; i < eff_index.size(); i++){
+	int eff_index_n = eff_index.size();
+	arma::mat eff_typed(eff_index_n, typed_value.n_cols);
+	for(i = 0; i < eff_index_n; i++){
 		eff_typed.row(i) = typed_value.row(eff_index[i]);
 	}
 	m = index_.size();
@@ -448,12 +447,13 @@ SEXP SImputeZ_ld_bin_c(XPtr<BigMatrix> pMat, XPtr<BigMatrix> pMat_G, const Integ
 	arma::mat beta;
 	arma::vec Rit(m); Rit.fill(0);
 
-	Progress p(nontyped_index_.size(), verbose, pb);
+	int nontyped_n = nontyped_index_.size();
+	Progress p(nontyped_n, verbose, pb);
 
 	if(haps){
 
 		#pragma omp parallel for schedule(dynamic) firstprivate(Rit) private(j, i, x11, x12, x21, x22, k, gi, gj, p1, p2, q1, q2, r, beta)
-		for(j = 0; j < nontyped_index_.size(); j++){
+		for(j = 0; j < nontyped_n; j++){
 			p1 = freq_all[nontyped_index_[j]];
 			if ( ! Progress::check_abort() ) {
 				p.increment();
@@ -517,7 +517,7 @@ SEXP SImputeZ_ld_bin_c(XPtr<BigMatrix> pMat, XPtr<BigMatrix> pMat_G, const Integ
 	}else{
 
 		#pragma omp parallel for schedule(dynamic) firstprivate(Rit) private(j, s1, s2, p1, m1, i, k, p12, p2, m2, r, beta)
-		for(j = 0; j < nontyped_index_.size(); j++){
+		for(j = 0; j < nontyped_n; j++){
 
 			p1 = freq_all[nontyped_index_[j]];
 			m1 = mean_all[nontyped_index_[j]];
@@ -592,11 +592,8 @@ SEXP SImputeZ_ld_bin_c(SEXP pBigMat, SEXP pBigMat_G, const IntegerVector typed_i
 // template <typename T>
 // arma::mat SImputeB_Rii_c(XPtr<BigMatrix> pMat, const NumericVector sd_all, const NumericVector mean_all, const NumericVector sum_all, const bool verbose = true, const int threads = 0){
 	
-// 	if (threads == 0) {
-// 		omp_set_num_threads(omp_get_num_procs());
-// 	}else if(threads > 0) {
-// 		omp_set_num_threads(threads);
-// 	}
+// 	omp_setup(threads);
+
 // 	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
 
 // 	int n = pMat->ncol();
@@ -656,11 +653,8 @@ SEXP SImputeZ_ld_bin_c(SEXP pBigMat, SEXP pBigMat_G, const IntegerVector typed_i
 // template <typename T>
 // SEXP SImputeB_bin_c(XPtr<BigMatrix> pMat, const IntegerVector typed_index, const arma::mat typed_value, const NumericVector lambda, const double maf = 0.01, const bool verbose = true, const int threads = 0){
 
-// 	if (threads == 0) {
-// 		omp_set_num_threads(omp_get_num_procs());
-// 	}else if(threads > 0) {
-// 		omp_set_num_threads(threads);
-// 	}
+// 	omp_setup(threads);
+
 // 	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
 
 // 	int n = pMat->ncol();
@@ -766,11 +760,8 @@ SEXP SImputeZ_ld_bin_c(SEXP pBigMat, SEXP pBigMat_G, const IntegerVector typed_i
 // template <typename T>
 // arma::mat SImputeB_ld_Rii_c(XPtr<BigMatrix> pMat, XPtr<BigMatrix> pMat_G, const LogicalVector refindx, const IntegerVector typed_index_, const NumericVector sd_all, const NumericVector mean_all, const NumericVector sum_all, const NumericVector sd_gwas, const NumericVector mean_gwas, const NumericVector sum_gwas, const bool verbose = true, const int threads = 0){
 	
-// 	if (threads == 0) {
-// 		omp_set_num_threads(omp_get_num_procs());
-// 	}else if(threads > 0) {
-// 		omp_set_num_threads(threads);
-// 	}
+// 	omp_setup(threads);
+
 // 	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
 // 	MatrixAccessor<T> bigm_G = MatrixAccessor<T>(*pMat_G);
 
@@ -872,11 +863,7 @@ SEXP SImputeZ_ld_bin_c(SEXP pBigMat, SEXP pBigMat_G, const IntegerVector typed_i
 // template <typename T>
 // SEXP SImputeB_ld_bin_c(XPtr<BigMatrix> pMat, XPtr<BigMatrix> pMat_G, const LogicalVector refindx, const IntegerVector typed_index, const arma::mat typed_value, const NumericVector lambda, const double maf = 0.01, const bool verbose = true, const int threads = 0){
 
-// 	if (threads == 0) {
-// 		omp_set_num_threads(omp_get_num_procs());
-// 	}else if(threads > 0) {
-// 		omp_set_num_threads(threads);
-// 	}
+// 	omp_setup(threads);
 
 // 	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
 // 	MatrixAccessor<T> bigm_G = MatrixAccessor<T>(*pMat_G);
@@ -990,11 +977,8 @@ SEXP SImputeZ_ld_bin_c(SEXP pBigMat, SEXP pBigMat_G, const IntegerVector typed_i
 // template <typename T>
 // SEXP SImputeB_new_bin_c(XPtr<BigMatrix> pMat, const int n_gwas, const IntegerVector typed_index, const arma::mat typed_value, const NumericVector lambda, const double maf = 0.01, const bool verbose = true, const int threads = 0){
 
-// 	if (threads == 0) {
-// 		omp_set_num_threads(omp_get_num_procs());
-// 	}else if(threads > 0) {
-// 		omp_set_num_threads(threads);
-// 	}
+// 	omp_setup(threads);
+
 // 	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
 
 // 	if(lambda.length() != typed_value.n_cols){
@@ -1143,11 +1127,8 @@ SEXP SImputeZ_ld_bin_c(SEXP pBigMat, SEXP pBigMat_G, const IntegerVector typed_i
 // template <typename T>
 // SEXP SImputeB_ld_new_bin_c(XPtr<BigMatrix> pMat, XPtr<BigMatrix> pMat_G, const IntegerVector typed_index, const arma::mat typed_value, const NumericVector lambda, const double maf = 0.01, const bool verbose = true, const int threads = 0){
 
-// 	if (threads == 0) {
-// 		omp_set_num_threads(omp_get_num_procs());
-// 	}else if(threads > 0) {
-// 		omp_set_num_threads(threads);
-// 	}
+// 	omp_setup(threads);
+
 // 	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
 // 	MatrixAccessor<T> bigm_G = MatrixAccessor<T>(*pMat_G);
 
@@ -1304,11 +1285,7 @@ SEXP SImputeZ_ld_bin_c(SEXP pBigMat, SEXP pBigMat_G, const IntegerVector typed_i
 template <typename T>
 SEXP SImpute_joint_c(XPtr<BigMatrix> pMat, const IntegerVector typed_index, const arma::mat typed_value, const double maf = 0.01, const bool verbose = true, int threads = 0){
 
-	if (threads == 0) {
-		omp_set_num_threads(omp_get_num_procs());
-	}else if(threads > 0) {
-		omp_set_num_threads(threads);
-	}
+	omp_setup(threads);
 
 	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
 

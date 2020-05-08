@@ -71,6 +71,14 @@ LDscore_c <- function(pBigMat, index, r2 = TRUE, adjust = FALSE, threads = 0L, v
     .Call(`_SumTool_LDscore_c`, pBigMat, index, r2, adjust, threads, verbose)
 }
 
+getCol <- function(pBigMat, col) {
+    .Call(`_SumTool_getCol`, pBigMat, col)
+}
+
+glm_c <- function(y, X, indx, pBigMat, verbose = TRUE, threads = 0L) {
+    .Call(`_SumTool_glm_c`, y, X, indx, pBigMat, verbose, threads)
+}
+
 sblup_bin <- function(pBigMat, n_gwas, typed_index, typed_value, lambda, verbose = TRUE, threads = 0L) {
     .Call(`_SumTool_sblup_bin`, pBigMat, n_gwas, typed_index, typed_value, lambda, verbose, threads)
 }

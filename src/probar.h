@@ -64,6 +64,7 @@ class MinimalProgressBar_plus: public ProgressBar{
 	    sec = time;
 	  
 	    std::stringstream time_strs;
+	    time_strs << "TimeLeft: ";
 	    if (hour != 0) time_strs << hour << "h";
 	    if (hour != 0 || min != 0) time_strs << min << "m";
 	    time_strs << sec << "s";

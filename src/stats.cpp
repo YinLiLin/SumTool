@@ -3,7 +3,7 @@
 // #endif
 
 #include <RcppArmadillo.h>
-#include <omp.h>
+#include "omp_set.h"
 #include <iostream>
 #include <bigmemory/BigMatrix.h>
 #include <bigmemory/MatrixAccessor.hpp>
@@ -36,19 +36,17 @@ arma::uvec std_setdiff(arma::uvec x, arma::uvec y){
 template <typename T>
 bool hasNA(XPtr<BigMatrix> pMat, double NA_C, const int threads=0) {
 
-	if (threads == 0) {
-		omp_set_num_threads(omp_get_num_procs());
-	}else if(threads > 0) {
-		omp_set_num_threads(threads);
-	}
+	omp_setup(threads);
 
     MatrixAccessor<T> mat = MatrixAccessor<T>(*pMat);
     bool HasNA = false;
+    int nc = pMat->ncol();
+    int nr = pMat->nrow();
 
     #pragma omp parallel for schedule(dynamic) shared(HasNA)
-    for (size_t j = 0; j < pMat->ncol(); j++) {
+    for (int j = 0; j < nc; j++) {
     	if(HasNA)	continue;
-        for (size_t i = 0; i < pMat->nrow(); i++) {
+        for (int i = 0; i < nr; i++) {
             if (mat[j][i] == NA_C) {
                 HasNA = true;
             }
@@ -78,11 +76,7 @@ bool hasNA(SEXP pBigMat, const int threads=0) {
 template <typename T>
 NumericVector freq_hap(XPtr<BigMatrix> pMat, const IntegerVector index_, const int threads = 0){
 
-    if (threads == 0) {
-        omp_set_num_threads(omp_get_num_procs());
-    }else if(threads > 0) {
-        omp_set_num_threads(threads);
-    }
+    omp_setup(threads);
 
 	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
 
@@ -130,11 +124,7 @@ NumericVector freq_hap(SEXP pBigMat, const IntegerVector index_, const int threa
 template <typename T>
 NumericVector freq(XPtr<BigMatrix> pMat, const IntegerVector index_, const int threads = 0){
 
-    if (threads == 0) {
-        omp_set_num_threads(omp_get_num_procs());
-    }else if(threads > 0) {
-        omp_set_num_threads(threads);
-    }
+    omp_setup(threads);
 
 	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
 
@@ -180,11 +170,7 @@ NumericVector freq(SEXP pBigMat, const IntegerVector index_, const int threads =
 template <typename T>
 SEXP BigStat(XPtr<BigMatrix> pMat, const IntegerVector index_, const int threads = 0){
 
-    if (threads == 0) {
-        omp_set_num_threads(omp_get_num_procs());
-    }else if(threads > 0) {
-        omp_set_num_threads(threads);
-    }
+    omp_setup(threads);
 
 	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
 
@@ -242,7 +228,7 @@ IntegerVector which_c(const NumericVector x, const double value, const int c = 1
 	IntegerVector eff_index_(x.size());
 	int type_len = 0;
 	bool logi;
-	for(int i = 0; i < x.size(); i++){
+	for(size_t i = 0; i < x.size(); i++){
 		if(c == 1){
 			logi = x[i] > value;
 		}else if(c == 2){

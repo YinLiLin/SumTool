@@ -2,7 +2,7 @@
 #define STATS_H
 
 #include <RcppArmadillo.h>
-#include <omp.h>
+#include "omp_set.h"
 #include <iostream>
 #include <bigmemory/BigMatrix.h>
 #include <bigmemory/MatrixAccessor.hpp>

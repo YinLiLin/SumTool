@@ -98,7 +98,7 @@ function(
 	t2 <- as.numeric(Sys.time())
 	if(verbose)	cat("Analysis finished:", as.character(Sys.time()), "\n")
 	if(verbose)	cat("Total Running time:", times(t2 - t1), "\n")
-	return(list(geno=geno, map=map))	
+	return(list(pheno=pheno, geno=geno, map=map))	
 }
 
 #' Data writing
@@ -698,6 +698,68 @@ LDcal <- function(geno = NULL, index = NULL, threads = 1, lambda = 0, chisq = 0,
 	if(verbose)	cat("Analysis finished:", as.character(Sys.time()), "\n")
 	if(verbose)	cat("Total Running time:", times(t2-t1), "\n")
 	return(bigmat)
+}
+
+#' Generalized Linear Model
+#'
+#' To do association using Generalized Linear Model 
+#'
+#' @param y vector, the phenotype vector with length n
+#' @param geno big.matrix (n * m), genotype
+#' @param map data.frame, the genomic information of SNPs. The columns should be in the order of c("SNP", "Chr", "Pos", "A1", "A2")
+#' @param X matrix, covariates
+#' @param threads number, the number of used threads for parallel process
+#' @param verbose logical, whether to print the log information
+
+#' @examples
+#' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
+#' data <- read_plink(bfile=ref_bfile_path, threads=1)
+#' geno <- data$geno
+#' map <- data$map
+#' y <- data$pheno[,1]
+#' gwas <- LMreg(y=y, geno=geno, map=map, threads=1, verbose=FALSE)
+
+LMreg <- function(y, geno = NULL, map = NULL, X = NULL, threads = 1, verbose = TRUE)
+{
+	if(verbose)	version.info()
+	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
+	if(is.null(geno))	stop("Please provide genotype!")
+	if(is.null(map))	stop("Please provide map!")
+	if(!is.big.matrix(geno))	stop("genotype should be in 'big.matrix' format!")
+	if(ncol(geno) != nrow(map))	stop("Number of SNPs not equals between genotype and map!")
+	if(ncol(map) != 5)	stop("Only 5 columns limited for map! (snp, chr, pos, a1, a2)")
+
+	if(verbose)	cat("Number of individuals:", nrow(geno), "\n")
+	if(is.matrix(y)){
+		if(ncol(y) != 1)	stop("More than 1 phenotype!")
+		y <- as.numeric(y)
+	}
+	if(nrow(geno) != length(y))	stop("Number of individuals not equals between phenotype and genotype!")
+	if(verbose){
+		if(sum(is.na(y)) != 0)	cat("Number of individuals with observations:", sum(!is.na(y)), "\n")
+	}
+	if(verbose)	cat("Number of SNPs:", ncol(geno), "\n")
+	indx <- which(!is.na(y))
+	yNa <- y[indx]
+	if(!is.null(X)){
+		X <- as.matrix(X)
+		if(nrow(X) != length(y))	stop("Number of individuals not equals between phenotype and covariates!")
+		if(verbose)	cat("Number of covariates:", ncol(X), "\n")
+		X_col <- apply(X, 2, function(x) length(table(x)) > 1)
+        X <- X[indx, X_col, drop=FALSE]
+		X <- cbind(1, X)
+	}else{
+		X <- matrix(1, length(yNa))
+	}
+	if(verbose)	cat("Genome scanning...", "\n")
+	t1 <- as.numeric(Sys.time())
+	lmreg <- glm_c(y = yNa, X = X, indx = indx, geno@address, verbose = verbose, threads = threads)
+	lmreg <- cbind(map, lmreg, length(yNa))
+	colnames(lmreg) <- c("SNP", "Chr", "Pos", "A1", "A2", "Maf", "Beta", "SE", "P", "N")
+	t2 <- as.numeric(Sys.time())
+	if(verbose)	cat("Analysis finished:", as.character(Sys.time()), "\n")
+	if(verbose)	cat("Total Running time:", times(t2-t1), "\n")
+	return(lmreg)
 }
 
 #' LD score calculation
