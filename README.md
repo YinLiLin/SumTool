@@ -1,10 +1,10 @@
-# SumTool [![](https://img.shields.io/badge/Issues-%2B-brightgreen.svg)](https://github.com/YinLiLin/SumTool/issues) [![](https://img.shields.io/badge/Release-v0.99.9-darkred.svg)](https://github.com/YinLiLin/SumTool)
+# SumTool [![](https://img.shields.io/badge/Issues-%2B-brightgreen.svg)](https://github.com/YinLiLin/SumTool/issues) [![](https://img.shields.io/badge/Release-v1.0.0-darkred.svg)](https://github.com/YinLiLin/SumTool)
 
 ## *A memory-efficient, parallel-accelerated tool for Summary data based Analysis*
 
 Overview
 -----
-```SumTool``` was designed to implement GWAS summary statistics analysis for big data. It can do ld, ldscore computation, ld pruning and clumping, Zscore, Marginal effect imputation, summary data based SNP BLUP (SBLUP) solution, as well as LD regression for heritability and genetic correlation estimation. It is featured with memory efficiency and parallel computation. By the aid of package [bigmemory](https://cran.r-project.org/web/packages/bigmemory/bigmemory.pdf), ```SumTool``` constructs memory-mapped files for genotype panel on disk instead of loading it all into Random Access Memory (RAM), which makes it possible to handle very big data with limited computation resources. Additionally, all matrix manipulations are enhanced by package [RcppArmadillo](https://cran.r-project.org/web/packages/RcppArmadillo/), which could be sped up by intel MKL library on platform of [Microsoft R Open](https://mran.microsoft.com) (I suggest using MRO rather than R), and all loop procedures are accelerated by OpenMP technology. The functions of SumTool will keep on being enriched with more features based on users feedbacks.
+```SumTool``` was designed to implement GWAS summary statistics analysis for big data. It can do ld, ldscore computation, ld pruning and clumping, linear model association, Zscore, Marginal effect imputation, summary data based SNP BLUP (SBLUP) solution, as well as LD regression for heritability and genetic correlation estimation. It is featured with memory efficiency and parallel computation. By the aid of package [bigmemory](https://cran.r-project.org/web/packages/bigmemory/bigmemory.pdf), ```SumTool``` constructs memory-mapped files for genotype panel on disk instead of loading it all into Random Access Memory (RAM), which makes it possible to handle very big data with limited computation resources. Additionally, all matrix manipulations are enhanced by package [RcppArmadillo](https://cran.r-project.org/web/packages/RcppArmadillo/), which could be sped up by intel MKL library on platform of [Microsoft R Open](https://mran.microsoft.com) (I suggest using MRO rather than R), and all loop procedures are accelerated by OpenMP technology. The functions of SumTool will keep on being enriched with more features based on users feedbacks.
 
 <!--
 If you have any bug reports or questions, please feed back :point_right:[here](https://github.com/YinLiLin/SumTool/issues/new):point_left:.
@@ -17,6 +17,8 @@ Features
   - [Linkage disequilibrium matrix](#linkage-disequilibrium)
   - [Linkage disequilibrium score](#ld-score)
   - [Linkage disequilibrium pruning](#ld-pruning)/[clumping](#ld-clumping)
+- Association
+  - [Linear Model](#linear-model) 
 - Impute
   - [Zscore imputation](#impute-zscore)
   - [Beta and SE imputation](#impute-marginal-effect)
@@ -93,6 +95,17 @@ head(pdata)
 4 rs144762171 0.4167849
 5 rs151276478 0.3716551
 snp <- LDclump(geno = ref.geno, map = ref.map, p = pdata, p.cutoff = 1, r2.cutoff = 0.25, w = 100000, threads = 1)
+```
+
+Linear Model
+-----
+```r
+ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
+data <- read_plink(bfile=ref_bfile_path, threads=1)
+geno <- data$geno
+map <- data$map
+y <- data$pheno[,1]
+gwas <- LMreg(y=y, geno=geno, map=map, threads=1, verbose=FALSE)
 ```
 
 Impute Zscore
