@@ -251,6 +251,7 @@ void wData_c(SEXP pBigMat, std::string bed_file, int threads = 0, bool verbose =
 //' # reading data
 //' bim_path <- system.file("extdata", "ref_geno.bim", package = "SumTool")
 //' n <- FileNcol(bim_path)
+//' @export
 // [[Rcpp::export]]
 int FileNcol(std::string filename) {
     // Define
@@ -277,6 +278,7 @@ int FileNcol(std::string filename) {
 //' # reading data
 //' bim_path <- system.file("extdata", "ref_geno.bim", package = "SumTool")
 //' n <- FileNrow(bim_path)
+//' @export
 // [[Rcpp::export]]
 int FileNrow(std::string filename) {
     // Define

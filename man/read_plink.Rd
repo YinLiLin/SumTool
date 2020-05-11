@@ -30,7 +30,7 @@ To read Plink binary format data into bigmemory (0, 1, 2) format
 }
 \examples{
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-data <- read_plink(bfile=ref_bfile_path, threads=1)
+data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
 geno <- data$geno
 map <- data$map
 }

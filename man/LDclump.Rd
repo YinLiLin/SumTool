@@ -31,9 +31,9 @@ To remove high correlated SNPs on base of r2 and p-values
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 p_path <- system.file("extdata", "P.txt", package = "SumTool")
 # load data
-data <- read_plink(bfile=ref_bfile_path, threads=1)
+data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
 geno <- data$geno
 map <- data$map
 pdata <- read.table(p_path, header = TRUE)
-snp <- LDclump(geno=geno, map=map, p=pdata, p.cutoff=1, r2.cutoff=0.25, w=100000)
+snp <- LDclump(geno=geno, map=map, p=pdata, p.cutoff=1, r2.cutoff=0.25, w=100000, verbose=FALSE)
 }

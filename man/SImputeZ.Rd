@@ -42,23 +42,24 @@ ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 typed_z_path <- system.file("extdata", "typed.zscore", package = "SumTool")
 
 # reading data
-data <- read_plink(bfile=ref_bfile_path, threads=1)
+data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
 ref.geno <- data$geno
 ref.map <- data$map
 typed_z <- read.table(typed_z_path, header=TRUE)
 
 # Impute Zscore
-xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, threads=1)
+xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, threads=1, verbose=FALSE)
 
 #--------------SImpute-LD---------------#
 
 gwas_bfile_path <- system.file("extdata", "gwas_geno", package = "SumTool")
-gwas <- read_plink(bfile=gwas_bfile_path, threads=1)
+gwas <- read_plink(bfile=gwas_bfile_path, threads=1, verbose=FALSE)
 typed.geno <- gwas$geno
 typed.map <- gwas$map
 #NOTE: the order of SNPs in 'typed.geno' should be consistent with the order in 'typed_z'.
 typed.geno <- deepcopy(typed.geno, cols = match(typed_z[, 1], typed.map[, 1]))
 
 # Impute Zscore
-xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, typed.geno=typed.geno, threads=1)
+xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, 
+	typed.geno=typed.geno, threads=1, verbose=FALSE)
 }

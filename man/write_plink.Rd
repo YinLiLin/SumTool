@@ -24,10 +24,10 @@ To write bigmemory (0, 1, 2) data into Plink binary format
 \examples{
 # reading data
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-data <- read_plink(bfile=ref_bfile_path, threads=1)
+data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
 geno <- data$geno
 map <- data$map
 
 # writing data
-# write_plink(geno=geno, map=map, out="./test", threads=1)
+# write_plink(geno=geno, map=map, out="./test", threads=1, verbose=FALSE)
 }

@@ -16,10 +16,9 @@ License: GPL (>= 2)
 URL: https://github.com/YinLiLin/SumTool
 BugReports: https://github.com/YinLiLin/SumTool/issues
 Encoding: UTF-8
-Imports: utils, stats, methods, Rcpp
-Depends: R (>= 3.3.0), bigmemory
-LinkingTo: Rcpp, RcppArmadillo (>= 0.8.400.0.0), RcppProgress, BH,
-        bigmemory
+Imports: utils, stats, methods, Rcpp, bigmemory
+Depends: R (>= 3.3.0)
+LinkingTo: Rcpp, RcppArmadillo (>= 0.8.400.0.0), RcppProgress, BH, bigmemory
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 SystemRequirements: C++11

@@ -42,9 +42,11 @@ function(x)
 
 #' @examples
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-#' data <- read_plink(bfile=ref_bfile_path, threads=1)
+#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
+
+#' @export
 
 read_plink <- 
 function(
@@ -114,12 +116,14 @@ function(
 #' @examples
 #' # reading data
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-#' data <- read_plink(bfile=ref_bfile_path, threads=1)
+#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 #'
 #' # writing data
-#' # write_plink(geno=geno, map=map, out="./test", threads=1)
+#' # write_plink(geno=geno, map=map, out="./test", threads=1, verbose=FALSE)
+
+#' @export
 
 write_plink <- 
 function(
@@ -175,25 +179,28 @@ function(
 #' typed_z_path <- system.file("extdata", "typed.zscore", package = "SumTool")
 #'
 #' # reading data
-#' data <- read_plink(bfile=ref_bfile_path, threads=1)
+#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
 #' ref.geno <- data$geno
 #' ref.map <- data$map
 #' typed_z <- read.table(typed_z_path, header=TRUE)
 #'
 #' # Impute Zscore
-#' xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, threads=1)
+#' xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, threads=1, verbose=FALSE)
 #'
 #' #--------------SImpute-LD---------------#
 #'
 #' gwas_bfile_path <- system.file("extdata", "gwas_geno", package = "SumTool")
-#' gwas <- read_plink(bfile=gwas_bfile_path, threads=1)
+#' gwas <- read_plink(bfile=gwas_bfile_path, threads=1, verbose=FALSE)
 #' typed.geno <- gwas$geno
 #' typed.map <- gwas$map
 #' #NOTE: the order of SNPs in 'typed.geno' should be consistent with the order in 'typed_z'.
 #' typed.geno <- deepcopy(typed.geno, cols = match(typed_z[, 1], typed.map[, 1]))
 #'
 #' # Impute Zscore
-#' xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, typed.geno=typed.geno, threads=1)
+#' xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, 
+#' 	typed.geno=typed.geno, threads=1, verbose=FALSE)
+
+#' @export
 
 SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed = NULL, w = 1000000, b = 500000, lambda = NULL, maf = 0.000001, correlation = TRUE, verbose = TRUE, threads = 1)
 {
@@ -409,25 +416,28 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 #' typed_b_path <- system.file("extdata", "typed.marginal", package = "SumTool")
 #'
 #' # reading data
-#' data <- read_plink(bfile=ref_bfile_path, threads=1)
+#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
 #' ref.geno <- data$geno
 #' ref.map <- data$map
 #' typed_b <- read.table(typed_b_path, header=TRUE)
 #'
 #' # Impute marginal effect and se
-#' xx <- SImputeB(ref.geno=ref.geno, ref.map=ref.map, typed=typed_b, threads=1)
+#' xx <- SImputeB(ref.geno=ref.geno, ref.map=ref.map, typed=typed_b, threads=1, verbose=FALSE)
 #'
 #' #--------------SImpute-LD---------------#
 #'
 #' gwas_bfile_path <- system.file("extdata", "gwas_geno", package = "SumTool")
-#' gwas <- read_plink(bfile=gwas_bfile_path, threads=1)
+#' gwas <- read_plink(bfile=gwas_bfile_path, threads=1, verbose=FALSE)
 #' typed.geno <- gwas$geno
 #' typed.map <- gwas$map
 #' #NOTE: the order of SNPs in 'typed.geno' should be consistent with the order in 'typed_b'.
 #' typed.geno <- deepcopy(typed.geno, cols = match(typed_b[, 1], typed.map[, 1]))
 #'
 #' # Impute marginal effect and se
-#' xx <- SImputeB(ref.geno=ref.geno, ref.map=ref.map, typed=typed_b, typed.geno=typed.geno, threads=1)
+#' xx <- SImputeB(ref.geno=ref.geno, ref.map=ref.map, typed=typed_b, 
+#'	typed.geno=typed.geno, threads=1, verbose=FALSE)
+
+#' @export
 
 SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed = NULL, w = 1000000, b = 500000, lambda = NULL, maf = 0.000001, correlation = TRUE, verbose = TRUE, threads = 1)
 {
@@ -652,9 +662,11 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 
 #' @examples
 #' gwas_bfile_path <- system.file("extdata", "gwas_geno", package = "SumTool")
-#' data <- read_plink(bfile=gwas_bfile_path, threads=1)
+#' data <- read_plink(bfile=gwas_bfile_path, threads=1, verbose=FALSE)
 #' geno <- data$geno
 #' ld <- LDcal(geno=geno, threads=1, verbose=FALSE)
+
+#' @export
 
 LDcal <- function(geno = NULL, index = NULL, threads = 1, lambda = 0, chisq = 0, correlation = TRUE, out = NULL, verbose = TRUE)
 {
@@ -719,6 +731,8 @@ LDcal <- function(geno = NULL, index = NULL, threads = 1, lambda = 0, chisq = 0,
 #' y <- data$pheno[,1]
 #' gwas <- LMreg(y=y, geno=geno, map=map, threads=1, verbose=FALSE)
 
+#' @export
+
 LMreg <- function(y, geno = NULL, map = NULL, X = NULL, threads = 1, verbose = TRUE)
 {
 	if(verbose)	version.info()
@@ -753,7 +767,7 @@ LMreg <- function(y, geno = NULL, map = NULL, X = NULL, threads = 1, verbose = T
 	}
 	if(verbose)	cat("Genome scanning...", "\n")
 	t1 <- as.numeric(Sys.time())
-	lmreg <- glm_c(y = yNa, X = X, indx = indx, geno@address, verbose = verbose, threads = threads)
+	lmreg <- glm_c(y = yNa, X = X, indx = (indx - 1), geno@address, verbose = verbose, threads = threads)
 	lmreg <- cbind(map, lmreg, length(yNa))
 	colnames(lmreg) <- c("SNP", "Chr", "Pos", "A1", "A2", "Maf", "Beta", "SE", "P", "N")
 	t2 <- as.numeric(Sys.time())
@@ -779,10 +793,12 @@ LMreg <- function(y, geno = NULL, map = NULL, X = NULL, threads = 1, verbose = T
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 #' 
 #' # load data
-#' data <- read_plink(bfile=ref_bfile_path, threads=1)
+#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
-#' ldscore <- LDscore(geno = geno, map = map, w = 100000, b=12500, threads = 1)
+#' ldscore <- LDscore(geno = geno, map = map, w = 100000, b=12500, threads = 1, verbose=FALSE)
+
+#' @export
 
 LDscore <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2 = TRUE, adjust = TRUE, verbose = TRUE, threads = 1)
 {
@@ -890,10 +906,12 @@ LDscore <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2 = TRUE,
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 #' 
 #' # load data
-#' data <- read_plink(bfile=ref_bfile_path, threads=1)
+#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
-#' snp <- LDprune(geno = geno, map = map, w = 100000, b=50000, threads = 1)
+#' snp <- LDprune(geno = geno, map = map, w = 100000, b=50000, threads = 1, verbose=FALSE)
+
+#' @export
 
 LDprune <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2.cutoff = 0.25, verbose = TRUE, threads = 1)
 {
@@ -1002,11 +1020,13 @@ LDprune <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2.cutoff 
 #' p_path <- system.file("extdata", "P.txt", package = "SumTool")
 
 #' # load data
-#' data <- read_plink(bfile=ref_bfile_path, threads=1)
+#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 #' pdata <- read.table(p_path, header = TRUE)
-#' snp <- LDclump(geno=geno, map=map, p=pdata, p.cutoff=1, r2.cutoff=0.25, w=100000)
+#' snp <- LDclump(geno=geno, map=map, p=pdata, p.cutoff=1, r2.cutoff=0.25, w=100000, verbose=FALSE)
+
+#' @export
 
 LDclump <- function(geno = NULL, map = NULL, p = NULL, w = 1000000, r2.cutoff = 0.25, p.cutoff = 1, verbose = TRUE, threads = 1)
 {
@@ -1121,12 +1141,14 @@ LDclump <- function(geno = NULL, map = NULL, p = NULL, w = 1000000, r2.cutoff = 
 #' 
 #' # load data
 #' sumstat <- read.table(sumstat_path, header=TRUE)
-#' data <- read_plink(bfile=ref_bfile_path, threads=1)
+#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 #' h2 <- 0.5
 #' lambda = nrow(sumstat)*(1/h2-1)
-#' eff <- SBLUP(sumstat=sumstat, geno=geno, map=map, lambda=lambda, threads=1)
+#' eff <- SBLUP(sumstat=sumstat, geno=geno, map=map, lambda=lambda, threads=1, verbose=FALSE)
+
+#' @export
 
 SBLUP <- function(sumstat = NULL, geno = NULL, map = NULL, lambda = NULL, w = 1e6, threads = 1, verbose = TRUE){
 
@@ -1245,12 +1267,14 @@ SBLUP <- function(sumstat = NULL, geno = NULL, map = NULL, lambda = NULL, w = 1e
 #' ldscore_path <- system.file("extdata", "ldscore", package = "SumTool")
 #' sumstat1 <- read.table(sumstat1_path, header=TRUE)
 #' ldscore <- read.table(ldscore_path, header=TRUE)
-#' res1 <- LDreg(sumstat = sumstat1, ldscore = ldscore)
+#' res1 <- LDreg(sumstat = sumstat1, ldscore = ldscore, verbose=FALSE)
 #' 
 #' #multiple traits
 #' sumstat2_path <- system.file("extdata", "sumstat2", package = "SumTool")
 #' sumstat2 <- read.table(sumstat2_path, header=TRUE)
-#' res2 <- LDreg(sumstat = list(sumstat1, sumstat2), ldscore = ldscore)
+#' res2 <- LDreg(sumstat = list(sumstat1, sumstat2), ldscore = ldscore, verbose=FALSE)
+
+#' @export
 
 LDreg <- function(sumstat = NULL, ldscore = NULL, wld = NULL, maxz2 = 80, maf = 0.05, nblock = 200, verbose = TRUE){
 

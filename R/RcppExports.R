@@ -18,6 +18,7 @@ wData_c <- function(pBigMat, bed_file, threads = 0L, verbose = TRUE) {
 #' # reading data
 #' bim_path <- system.file("extdata", "ref_geno.bim", package = "SumTool")
 #' n <- FileNcol(bim_path)
+#' @export
 FileNcol <- function(filename) {
     .Call(`_SumTool_FileNcol`, filename)
 }
@@ -31,6 +32,7 @@ FileNcol <- function(filename) {
 #' # reading data
 #' bim_path <- system.file("extdata", "ref_geno.bim", package = "SumTool")
 #' n <- FileNrow(bim_path)
+#' @export
 FileNrow <- function(filename) {
     .Call(`_SumTool_FileNrow`, filename)
 }
@@ -114,4 +116,3 @@ BigStat <- function(pBigMat, index_, threads = 0L) {
 which_c <- function(x, value, c = 1L) {
     .Call(`_SumTool_which_c`, x, value, c)
 }
-

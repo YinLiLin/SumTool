@@ -119,7 +119,7 @@ SEXP glm_c(const arma::vec y, const arma::mat X, const IntegerVector indx, XPtr<
         res(i, 0) = maf;
         res(i, 1) = beta(q0, 0);
         res(i, 2) = sqrt(iXXs(q0, q0) * ve); 
-        res(i, 3) = 2 * R::pt(abs(res(i, 0) / res(i, 1)), df, false, false);
+        res(i, 3) = 2 * R::pt(abs(res(i, 1) / res(i, 2)), df, false, false);
 
         progress.increment();
 	}

@@ -31,10 +31,10 @@ sumstat1_path <- system.file("extdata", "sumstat1", package = "SumTool")
 ldscore_path <- system.file("extdata", "ldscore", package = "SumTool")
 sumstat1 <- read.table(sumstat1_path, header=TRUE)
 ldscore <- read.table(ldscore_path, header=TRUE)
-res1 <- LDreg(sumstat = sumstat1, ldscore = ldscore)
+res1 <- LDreg(sumstat = sumstat1, ldscore = ldscore, verbose=FALSE)
 
 #multiple traits
 sumstat2_path <- system.file("extdata", "sumstat2", package = "SumTool")
 sumstat2 <- read.table(sumstat2_path, header=TRUE)
-res2 <- LDreg(sumstat = list(sumstat1, sumstat2), ldscore = ldscore)
+res2 <- LDreg(sumstat = list(sumstat1, sumstat2), ldscore = ldscore, verbose=FALSE)
 }

@@ -29,8 +29,8 @@ To remove high correlated SNPs on base of r2 and MAF
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 
 # load data
-data <- read_plink(bfile=ref_bfile_path, threads=1)
+data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
 geno <- data$geno
 map <- data$map
-snp <- LDprune(geno = geno, map = map, w = 100000, b=50000, threads = 1)
+snp <- LDprune(geno = geno, map = map, w = 100000, b=50000, threads = 1, verbose=FALSE)
 }

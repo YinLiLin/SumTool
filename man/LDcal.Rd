@@ -29,7 +29,7 @@ To calculate LD for all pairs of SNPs on given genome
 }
 \examples{
 gwas_bfile_path <- system.file("extdata", "gwas_geno", package = "SumTool")
-data <- read_plink(bfile=gwas_bfile_path, threads=1)
+data <- read_plink(bfile=gwas_bfile_path, threads=1, verbose=FALSE)
 geno <- data$geno
 ld <- LDcal(geno=geno, threads=1, verbose=FALSE)
 }

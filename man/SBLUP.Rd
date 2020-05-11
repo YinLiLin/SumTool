@@ -31,10 +31,10 @@ ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 
 # load data
 sumstat <- read.table(sumstat_path, header=TRUE)
-data <- read_plink(bfile=ref_bfile_path, threads=1)
+data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
 geno <- data$geno
 map <- data$map
 h2 <- 0.5
 lambda = nrow(sumstat)*(1/h2-1)
-eff <- SBLUP(sumstat=sumstat, geno=geno, map=map, lambda=lambda, threads=1)
+eff <- SBLUP(sumstat=sumstat, geno=geno, map=map, lambda=lambda, threads=1, verbose=FALSE)
 }
