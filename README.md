@@ -19,9 +19,9 @@ Features
   - [Linkage disequilibrium pruning](#ld-pruning)/[clumping](#ld-clumping)
 - Association
   - [Linear Model](#linear-model) 
-- Impute
-  - [Zscore imputation](#impute-zscore)
-  - [Beta and SE imputation](#impute-marginal-effect)
+- Imputation
+  - [Impute Zscore](#impute-zscore)
+  - [Impute Beta and SE](#impute-marginal-effect)
 - LD regression
   - [Heritability](#estimate-h2)
   - [Genetic correlation](#estimate-rg)<img src="https://raw.githubusercontent.com/YinLiLin/SumTool/master/pic/P1.png" height="100" align="right" />
