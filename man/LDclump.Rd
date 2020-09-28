@@ -4,8 +4,16 @@
 \alias{LDclump}
 \title{LD clumping}
 \usage{
-LDclump(geno = NULL, map = NULL, p = NULL, w = 1e+06,
-  r2.cutoff = 0.25, p.cutoff = 1, verbose = TRUE, threads = 1)
+LDclump(
+  geno = NULL,
+  map = NULL,
+  p = NULL,
+  w = 1e+06,
+  r2.cutoff = 0.25,
+  p.cutoff = 1,
+  verbose = TRUE,
+  threads = 1
+)
 }
 \arguments{
 \item{geno}{bigmemory (n * m), genotype coded as 0, 1, 2}
@@ -31,7 +39,7 @@ To remove high correlated SNPs on base of r2 and p-values
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 p_path <- system.file("extdata", "P.txt", package = "SumTool")
 # load data
-data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
+data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
 geno <- data$geno
 map <- data$map
 pdata <- read.table(p_path, header = TRUE)

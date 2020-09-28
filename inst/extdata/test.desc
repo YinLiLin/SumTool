@@ -1,0 +1,5 @@
+new("big.matrix.descriptor", description = list(sharedType = "FileBacked", 
+    filename = "test.bin", dirname = "/home/llyin/Software/ImpG/SampleData/", 
+    totalRows = 379L, totalCols = 2781L, rowOffset = c(0, 379
+    ), colOffset = c(0, 2781), nrow = 379, ncol = 2781, rowNames = NULL, 
+    colNames = NULL, type = "char", separated = FALSE))

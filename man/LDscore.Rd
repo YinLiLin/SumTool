@@ -4,8 +4,16 @@
 \alias{LDscore}
 \title{LD score calculation}
 \usage{
-LDscore(geno = NULL, map = NULL, w = 1e+06, b = 5e+05, r2 = TRUE,
-  adjust = TRUE, verbose = TRUE, threads = 1)
+LDscore(
+  geno = NULL,
+  map = NULL,
+  w = 1e+06,
+  b = 5e+05,
+  r2 = TRUE,
+  adjust = TRUE,
+  verbose = TRUE,
+  threads = 1
+)
 }
 \arguments{
 \item{geno}{bigmemory (n * m), genotype coded as 0, 1, 2}
@@ -31,7 +39,7 @@ To estimate LD score for each SNPs
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 
 # load data
-data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
+data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
 geno <- data$geno
 map <- data$map
 ldscore <- LDscore(geno = geno, map = map, w = 100000, b=12500, threads = 1, verbose=FALSE)

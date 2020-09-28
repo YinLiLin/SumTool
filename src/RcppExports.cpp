@@ -6,31 +6,70 @@
 
 using namespace Rcpp;
 
-// rData_c
-void rData_c(std::string bfile, const SEXP pBigMat, const long maxLine, const bool impt, const bool verbose, const int threads);
-RcppExport SEXP _SumTool_rData_c(SEXP bfileSEXP, SEXP pBigMatSEXP, SEXP maxLineSEXP, SEXP imptSEXP, SEXP verboseSEXP, SEXP threadsSEXP) {
+// SImputeZ_bin_c
+SEXP SImputeZ_bin_c(SEXP pBigMat, const IntegerVector& bin_index, const IntegerVector& typed_index, const arma::mat& typed_value, const double lambda, const double maf, const bool verbose, const int threads);
+RcppExport SEXP _SumTool_SImputeZ_bin_c(SEXP pBigMatSEXP, SEXP bin_indexSEXP, SEXP typed_indexSEXP, SEXP typed_valueSEXP, SEXP lambdaSEXP, SEXP mafSEXP, SEXP verboseSEXP, SEXP threadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type bin_index(bin_indexSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type typed_index(typed_indexSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type typed_value(typed_valueSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type maf(mafSEXP);
+    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(SImputeZ_bin_c(pBigMat, bin_index, typed_index, typed_value, lambda, maf, verbose, threads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// SImputeZ_ld_bin_c
+SEXP SImputeZ_ld_bin_c(SEXP pBigMat, SEXP pBigMat_G, const IntegerVector& bin_index, const IntegerVector& typed_index, const IntegerVector& typed_bin_index, const arma::mat& typed_value, const double lambda, const double maf, const bool verbose, const int threads);
+RcppExport SEXP _SumTool_SImputeZ_ld_bin_c(SEXP pBigMatSEXP, SEXP pBigMat_GSEXP, SEXP bin_indexSEXP, SEXP typed_indexSEXP, SEXP typed_bin_indexSEXP, SEXP typed_valueSEXP, SEXP lambdaSEXP, SEXP mafSEXP, SEXP verboseSEXP, SEXP threadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type pBigMat_G(pBigMat_GSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type bin_index(bin_indexSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type typed_index(typed_indexSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type typed_bin_index(typed_bin_indexSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type typed_value(typed_valueSEXP);
+    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< const double >::type maf(mafSEXP);
+    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(SImputeZ_ld_bin_c(pBigMat, pBigMat_G, bin_index, typed_index, typed_bin_index, typed_value, lambda, maf, verbose, threads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rBed_c
+void rBed_c(std::string bfile, const SEXP pBigMat, const long maxLine, const bool add, const bool impt, const bool verbose, const int threads);
+RcppExport SEXP _SumTool_rBed_c(SEXP bfileSEXP, SEXP pBigMatSEXP, SEXP maxLineSEXP, SEXP addSEXP, SEXP imptSEXP, SEXP verboseSEXP, SEXP threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::string >::type bfile(bfileSEXP);
     Rcpp::traits::input_parameter< const SEXP >::type pBigMat(pBigMatSEXP);
     Rcpp::traits::input_parameter< const long >::type maxLine(maxLineSEXP);
+    Rcpp::traits::input_parameter< const bool >::type add(addSEXP);
     Rcpp::traits::input_parameter< const bool >::type impt(imptSEXP);
     Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
-    rData_c(bfile, pBigMat, maxLine, impt, verbose, threads);
+    rBed_c(bfile, pBigMat, maxLine, add, impt, verbose, threads);
     return R_NilValue;
 END_RCPP
 }
-// wData_c
-void wData_c(SEXP pBigMat, std::string bed_file, int threads, bool verbose);
-RcppExport SEXP _SumTool_wData_c(SEXP pBigMatSEXP, SEXP bed_fileSEXP, SEXP threadsSEXP, SEXP verboseSEXP) {
+// wBed_c
+void wBed_c(SEXP pBigMat, std::string bed_file, int threads, bool verbose);
+RcppExport SEXP _SumTool_wBed_c(SEXP pBigMatSEXP, SEXP bed_fileSEXP, SEXP threadsSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
     Rcpp::traits::input_parameter< std::string >::type bed_file(bed_fileSEXP);
     Rcpp::traits::input_parameter< int >::type threads(threadsSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    wData_c(pBigMat, bed_file, threads, verbose);
+    wBed_c(pBigMat, bed_file, threads, verbose);
     return R_NilValue;
 END_RCPP
 }
@@ -56,6 +95,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// VCF_Row_Col
+List VCF_Row_Col(std::string vcf_file);
+RcppExport SEXP _SumTool_VCF_Row_Col(SEXP vcf_fileSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type vcf_file(vcf_fileSEXP);
+    rcpp_result_gen = Rcpp::wrap(VCF_Row_Col(vcf_file));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rMap_c
 List rMap_c(std::string map_file, const Nullable<std::string> out);
 RcppExport SEXP _SumTool_rMap_c(SEXP map_fileSEXP, SEXP outSEXP) {
@@ -65,6 +115,24 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::string >::type map_file(map_fileSEXP);
     Rcpp::traits::input_parameter< const Nullable<std::string> >::type out(outSEXP);
     rcpp_result_gen = Rcpp::wrap(rMap_c(map_file, out));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rVCF_c
+List rVCF_c(const std::string vcf_file, const SEXP pBigMat, const long maxLine, const std::string out, const bool impt, const bool add, const bool verbose, const int threads);
+RcppExport SEXP _SumTool_rVCF_c(SEXP vcf_fileSEXP, SEXP pBigMatSEXP, SEXP maxLineSEXP, SEXP outSEXP, SEXP imptSEXP, SEXP addSEXP, SEXP verboseSEXP, SEXP threadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string >::type vcf_file(vcf_fileSEXP);
+    Rcpp::traits::input_parameter< const SEXP >::type pBigMat(pBigMatSEXP);
+    Rcpp::traits::input_parameter< const long >::type maxLine(maxLineSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type out(outSEXP);
+    Rcpp::traits::input_parameter< const bool >::type impt(imptSEXP);
+    Rcpp::traits::input_parameter< const bool >::type add(addSEXP);
+    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rVCF_c(vcf_file, pBigMat, maxLine, out, impt, add, verbose, threads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -99,23 +167,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
     Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
     rcpp_result_gen = Rcpp::wrap(SImpute_LD_norm_c(pBigMat, index, chisq, lambda, haps, threads, verbose));
-    return rcpp_result_gen;
-END_RCPP
-}
-// SImpute_LD_sparse_c
-SEXP SImpute_LD_sparse_c(SEXP pBigMat, const Nullable<IntegerVector> index, const int chisq, const double lambda, const bool haps, const int threads, const bool verbose);
-RcppExport SEXP _SumTool_SImpute_LD_sparse_c(SEXP pBigMatSEXP, SEXP indexSEXP, SEXP chisqSEXP, SEXP lambdaSEXP, SEXP hapsSEXP, SEXP threadsSEXP, SEXP verboseSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
-    Rcpp::traits::input_parameter< const Nullable<IntegerVector> >::type index(indexSEXP);
-    Rcpp::traits::input_parameter< const int >::type chisq(chisqSEXP);
-    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< const bool >::type haps(hapsSEXP);
-    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
-    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(SImpute_LD_sparse_c(pBigMat, index, chisq, lambda, haps, threads, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -247,59 +298,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// SImputeZ_bin_c
-SEXP SImputeZ_bin_c(SEXP pBigMat, const IntegerVector typed_index, const arma::mat typed_value, const double lambda, const double maf, const bool haps, const bool verbose, const int threads);
-RcppExport SEXP _SumTool_SImputeZ_bin_c(SEXP pBigMatSEXP, SEXP typed_indexSEXP, SEXP typed_valueSEXP, SEXP lambdaSEXP, SEXP mafSEXP, SEXP hapsSEXP, SEXP verboseSEXP, SEXP threadsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector >::type typed_index(typed_indexSEXP);
-    Rcpp::traits::input_parameter< const arma::mat >::type typed_value(typed_valueSEXP);
-    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< const double >::type maf(mafSEXP);
-    Rcpp::traits::input_parameter< const bool >::type haps(hapsSEXP);
-    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(SImputeZ_bin_c(pBigMat, typed_index, typed_value, lambda, maf, haps, verbose, threads));
-    return rcpp_result_gen;
-END_RCPP
-}
-// SImputeZ_ld_bin_c
-SEXP SImputeZ_ld_bin_c(SEXP pBigMat, SEXP pBigMat_G, const IntegerVector typed_index, const arma::mat typed_value, const double lambda, const double maf, const bool haps, const bool verbose, const int threads);
-RcppExport SEXP _SumTool_SImputeZ_ld_bin_c(SEXP pBigMatSEXP, SEXP pBigMat_GSEXP, SEXP typed_indexSEXP, SEXP typed_valueSEXP, SEXP lambdaSEXP, SEXP mafSEXP, SEXP hapsSEXP, SEXP verboseSEXP, SEXP threadsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type pBigMat_G(pBigMat_GSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector >::type typed_index(typed_indexSEXP);
-    Rcpp::traits::input_parameter< const arma::mat >::type typed_value(typed_valueSEXP);
-    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< const double >::type maf(mafSEXP);
-    Rcpp::traits::input_parameter< const bool >::type haps(hapsSEXP);
-    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(SImputeZ_ld_bin_c(pBigMat, pBigMat_G, typed_index, typed_value, lambda, maf, haps, verbose, threads));
-    return rcpp_result_gen;
-END_RCPP
-}
-// SImpute_joint_c
-SEXP SImpute_joint_c(SEXP pBigMat, const IntegerVector typed_index, const arma::mat typed_value, const double maf, const bool verbose, int threads);
-RcppExport SEXP _SumTool_SImpute_joint_c(SEXP pBigMatSEXP, SEXP typed_indexSEXP, SEXP typed_valueSEXP, SEXP mafSEXP, SEXP verboseSEXP, SEXP threadsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector >::type typed_index(typed_indexSEXP);
-    Rcpp::traits::input_parameter< const arma::mat >::type typed_value(typed_valueSEXP);
-    Rcpp::traits::input_parameter< const double >::type maf(mafSEXP);
-    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< int >::type threads(threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(SImpute_joint_c(pBigMat, typed_index, typed_value, maf, verbose, threads));
-    return rcpp_result_gen;
-END_RCPP
-}
 // hasNA
 bool hasNA(SEXP pBigMat, const int threads);
 RcppExport SEXP _SumTool_hasNA(SEXP pBigMatSEXP, SEXP threadsSEXP) {
@@ -312,29 +310,55 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// freq_hap
-NumericVector freq_hap(SEXP pBigMat, const IntegerVector index_, const int threads);
-RcppExport SEXP _SumTool_freq_hap(SEXP pBigMatSEXP, SEXP index_SEXP, SEXP threadsSEXP) {
+// freq_snp
+NumericVector freq_snp(SEXP pBigMat, const IntegerVector index_, const int threads);
+RcppExport SEXP _SumTool_freq_snp(SEXP pBigMatSEXP, SEXP index_SEXP, SEXP threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type index_(index_SEXP);
     Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(freq_hap(pBigMat, index_, threads));
+    rcpp_result_gen = Rcpp::wrap(freq_snp(pBigMat, index_, threads));
     return rcpp_result_gen;
 END_RCPP
 }
-// freq
-NumericVector freq(SEXP pBigMat, const IntegerVector index_, const int threads);
-RcppExport SEXP _SumTool_freq(SEXP pBigMatSEXP, SEXP index_SEXP, SEXP threadsSEXP) {
+// freq_hap
+double freq_hap(SEXP pBigMat, const int indx_1, const int indx_2);
+RcppExport SEXP _SumTool_freq_hap(SEXP pBigMatSEXP, SEXP indx_1SEXP, SEXP indx_2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
+    Rcpp::traits::input_parameter< const int >::type indx_1(indx_1SEXP);
+    Rcpp::traits::input_parameter< const int >::type indx_2(indx_2SEXP);
+    rcpp_result_gen = Rcpp::wrap(freq_hap(pBigMat, indx_1, indx_2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// freq_s
+NumericVector freq_s(SEXP pBigMat, const IntegerVector index_, const int threads);
+RcppExport SEXP _SumTool_freq_s(SEXP pBigMatSEXP, SEXP index_SEXP, SEXP threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
     Rcpp::traits::input_parameter< const IntegerVector >::type index_(index_SEXP);
     Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(freq(pBigMat, index_, threads));
+    rcpp_result_gen = Rcpp::wrap(freq_s(pBigMat, index_, threads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// freq_h
+double freq_h(SEXP pBigMat, const int indx_1, const int indx_2);
+RcppExport SEXP _SumTool_freq_h(SEXP pBigMatSEXP, SEXP indx_1SEXP, SEXP indx_2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type pBigMat(pBigMatSEXP);
+    Rcpp::traits::input_parameter< const int >::type indx_1(indx_1SEXP);
+    Rcpp::traits::input_parameter< const int >::type indx_2(indx_2SEXP);
+    rcpp_result_gen = Rcpp::wrap(freq_h(pBigMat, indx_1, indx_2));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -366,14 +390,17 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_SumTool_rData_c", (DL_FUNC) &_SumTool_rData_c, 6},
-    {"_SumTool_wData_c", (DL_FUNC) &_SumTool_wData_c, 4},
+    {"_SumTool_SImputeZ_bin_c", (DL_FUNC) &_SumTool_SImputeZ_bin_c, 8},
+    {"_SumTool_SImputeZ_ld_bin_c", (DL_FUNC) &_SumTool_SImputeZ_ld_bin_c, 10},
+    {"_SumTool_rBed_c", (DL_FUNC) &_SumTool_rBed_c, 7},
+    {"_SumTool_wBed_c", (DL_FUNC) &_SumTool_wBed_c, 4},
     {"_SumTool_FileNcol", (DL_FUNC) &_SumTool_FileNcol, 1},
     {"_SumTool_FileNrow", (DL_FUNC) &_SumTool_FileNrow, 1},
+    {"_SumTool_VCF_Row_Col", (DL_FUNC) &_SumTool_VCF_Row_Col, 1},
     {"_SumTool_rMap_c", (DL_FUNC) &_SumTool_rMap_c, 2},
+    {"_SumTool_rVCF_c", (DL_FUNC) &_SumTool_rVCF_c, 8},
     {"_SumTool_SImpute_LD_bigm_c", (DL_FUNC) &_SumTool_SImpute_LD_bigm_c, 8},
     {"_SumTool_SImpute_LD_norm_c", (DL_FUNC) &_SumTool_SImpute_LD_norm_c, 7},
-    {"_SumTool_SImpute_LD_sparse_c", (DL_FUNC) &_SumTool_SImpute_LD_sparse_c, 7},
     {"_SumTool_LDprune_c", (DL_FUNC) &_SumTool_LDprune_c, 5},
     {"_SumTool_LDclump_c", (DL_FUNC) &_SumTool_LDclump_c, 6},
     {"_SumTool_ldreg_h2", (DL_FUNC) &_SumTool_ldreg_h2, 8},
@@ -382,12 +409,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_SumTool_getCol", (DL_FUNC) &_SumTool_getCol, 2},
     {"_SumTool_glm_c", (DL_FUNC) &_SumTool_glm_c, 6},
     {"_SumTool_sblup_bin", (DL_FUNC) &_SumTool_sblup_bin, 7},
-    {"_SumTool_SImputeZ_bin_c", (DL_FUNC) &_SumTool_SImputeZ_bin_c, 8},
-    {"_SumTool_SImputeZ_ld_bin_c", (DL_FUNC) &_SumTool_SImputeZ_ld_bin_c, 9},
-    {"_SumTool_SImpute_joint_c", (DL_FUNC) &_SumTool_SImpute_joint_c, 6},
     {"_SumTool_hasNA", (DL_FUNC) &_SumTool_hasNA, 2},
+    {"_SumTool_freq_snp", (DL_FUNC) &_SumTool_freq_snp, 3},
     {"_SumTool_freq_hap", (DL_FUNC) &_SumTool_freq_hap, 3},
-    {"_SumTool_freq", (DL_FUNC) &_SumTool_freq, 3},
+    {"_SumTool_freq_s", (DL_FUNC) &_SumTool_freq_s, 3},
+    {"_SumTool_freq_h", (DL_FUNC) &_SumTool_freq_h, 3},
     {"_SumTool_BigStat", (DL_FUNC) &_SumTool_BigStat, 3},
     {"_SumTool_which_c", (DL_FUNC) &_SumTool_which_c, 3},
     {NULL, NULL, 0}

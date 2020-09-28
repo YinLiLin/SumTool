@@ -4,8 +4,15 @@
 \alias{SBLUP}
 \title{Summary data based SNP BLUP}
 \usage{
-SBLUP(sumstat = NULL, geno = NULL, map = NULL, lambda = NULL,
-  w = 1e+06, threads = 1, verbose = TRUE)
+SBLUP(
+  sumstat = NULL,
+  geno = NULL,
+  map = NULL,
+  lambda = NULL,
+  w = 1e+06,
+  threads = 1,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{sumstat}{data.frame, GWAS summary statistics of a trait. The columns should be in the order of c("SNP", "Chr", "Pos", "A1", "A2", "BETA", "SE, "N")}
@@ -26,12 +33,12 @@ SBLUP(sumstat = NULL, geno = NULL, map = NULL, lambda = NULL,
 To estimate joint SNP effect using GWAS summary statistics
 }
 \examples{
-sumstat_path <- system.file("extdata", "typed.marginal", package = "SumTool")
+sumstat_path <- system.file("extdata", "typed.beta", package = "SumTool")
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 
 # load data
 sumstat <- read.table(sumstat_path, header=TRUE)
-data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
+data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
 geno <- data$geno
 map <- data$map
 h2 <- 0.5

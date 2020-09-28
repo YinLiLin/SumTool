@@ -1,13 +1,13 @@
 Package: SumTool
 Title: Summary Statistics Analysis Tool
 Version: 1.0.0
-Date: 2020-05-01
+Date: 2020-10-01
 Authors@R: c(
     person("Lilin", "Yin", email = "ylilin@163.com", 
            role = c("aut", "cre", "cph")),
     person("Jian", "Zeng", email = "j.zeng@imb.uq.edu.au", 
            role = c("aut", "cph")),
-    person("Jian", "Yang", email = "jian.yang@uq.edu.au", 
+    person("Jian", "Yang", email = "jian.yang.qt@gmail.com", 
            role = c("aut", "cph"))
     )
 Maintainer: Lilin Yin <ylilin@163.com>
@@ -19,7 +19,7 @@ Encoding: UTF-8
 Imports: utils, stats, methods, Rcpp, bigmemory
 Depends: R (>= 3.3.0)
 LinkingTo: Rcpp, RcppArmadillo (>= 0.8.400.0.0), RcppProgress, BH, bigmemory
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 SystemRequirements: C++11
 NeedsCompilation: yes

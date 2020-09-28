@@ -4,8 +4,7 @@
 \alias{LMreg}
 \title{Generalized Linear Model}
 \usage{
-LMreg(y, geno = NULL, map = NULL, X = NULL, threads = 1,
-  verbose = TRUE)
+LMreg(y, geno = NULL, map = NULL, X = NULL, threads = 1, verbose = TRUE)
 }
 \arguments{
 \item{y}{vector, the phenotype vector with length n}
@@ -25,7 +24,7 @@ To do association using Generalized Linear Model
 }
 \examples{
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-data <- read_plink(bfile=ref_bfile_path, threads=1)
+data <- read_plink(bfile=ref_bfile_path, backingpath=tempdir(), threads=1)
 geno <- data$geno
 map <- data$map
 y <- data$pheno[,1]

@@ -1,6 +1,6 @@
-// #if !defined(ARMA_64BIT_WORD)
-// #define ARMA_64BIT_WORD 1
-// #endif
+#if !defined(ARMA_64BIT_WORD)
+#define ARMA_64BIT_WORD 1
+#endif
 
 #include <RcppArmadillo.h>
 #include "omp_set.h"
@@ -74,7 +74,7 @@ bool hasNA(SEXP pBigMat, const int threads=0) {
 }
 
 template <typename T>
-NumericVector freq_hap(XPtr<BigMatrix> pMat, const IntegerVector index_, const int threads = 0){
+NumericVector freq_snp(XPtr<BigMatrix> pMat, const IntegerVector index_, const int threads = 0){
 
     omp_setup(threads);
 
@@ -82,20 +82,17 @@ NumericVector freq_hap(XPtr<BigMatrix> pMat, const IntegerVector index_, const i
 
 	int ind = pMat->nrow();
 	int j, k, m = index_.size();
+	int g;
 	double p1 = 0.0;
 	NumericVector freq(m);
 
-	#pragma omp parallel for schedule(dynamic) private(p1, k)
+	#pragma omp parallel for schedule(dynamic) private(j, p1, k, g)
 	for (j = 0; j < m; j++){
 		p1 = 0.0;
 		for(k = 0; k < ind; k++){
-			if(bigm[index_[j]][k] == 12){
-				p1 += 1;
-			}else if(bigm[index_[j]][k] == 21){
-				p1 += 1;
-			}else if(bigm[index_[j]][k] == 11){
-				p1 += 2;
-			}
+			g = bigm[index_[j]][k];
+			// p1 += (((g / 10) == 1) + ((g % 10) == 1));
+			p1 += ((g == 11) ? (2) : (g == 22 ? (0) : (1)));
 		}
 		freq[j] = p1 / (ind * 2);
 	}
@@ -103,26 +100,68 @@ NumericVector freq_hap(XPtr<BigMatrix> pMat, const IntegerVector index_, const i
 }
 
 // [[Rcpp::export]]
-NumericVector freq_hap(SEXP pBigMat, const IntegerVector index_, const int threads = 0){
+NumericVector freq_snp(SEXP pBigMat, const IntegerVector index_, const int threads = 0){
 
 	XPtr<BigMatrix> xpMat(pBigMat);
 
 	switch(xpMat->matrix_type()) {
 	case 1:
-		return freq_hap<char>(xpMat, index_, threads);
+		return freq_snp<char>(xpMat, index_, threads);
 	case 2:
-		return freq_hap<short>(xpMat, index_, threads);
+		return freq_snp<short>(xpMat, index_, threads);
 	case 4:
-		return freq_hap<int>(xpMat, index_, threads);
+		return freq_snp<int>(xpMat, index_, threads);
 	case 8:
-		return freq_hap<double>(xpMat, index_, threads);
+		return freq_snp<double>(xpMat, index_, threads);
 	default:
 		throw Rcpp::exception("unknown type detected for big.matrix object!");
 	}
 }
 
 template <typename T>
-NumericVector freq(XPtr<BigMatrix> pMat, const IntegerVector index_, const int threads = 0){
+double freq_hap(XPtr<BigMatrix> pMat, const int indx_1, const int indx_2){
+
+	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
+
+	int ind = pMat->nrow();
+	int k;
+	double p12 = 0.0;
+	double freq;
+	IntegerVector index_ = {indx_1, indx_2};
+
+	NumericVector p = freq_snp(pMat, index_);
+	for(k = 0; k < ind; k++){
+		std::string g1 = std::to_string(bigm[indx_1][k]);
+		std::string g2 = std::to_string(bigm[indx_2][k]);
+		if(g1[0] == '1' && g2[0] == '1')	p12++;
+		if(g1[1] == '1' && g2[1] == '1')	p12++;
+	}
+	p12 /= (ind * 2);
+	freq = (p12 - p[0] * p[1]) / sqrt(p[0] * (1.0 - p[0]) * p[1] * (1.0 - p[1]));
+	return freq;
+}
+
+// [[Rcpp::export]]
+double freq_hap(SEXP pBigMat, const int indx_1, const int indx_2){
+
+	XPtr<BigMatrix> xpMat(pBigMat);
+
+	switch(xpMat->matrix_type()) {
+	case 1:
+		return freq_hap<char>(xpMat, indx_1, indx_2);
+	case 2:
+		return freq_hap<short>(xpMat, indx_1, indx_2);
+	case 4:
+		return freq_hap<int>(xpMat, indx_1, indx_2);
+	case 8:
+		return freq_hap<double>(xpMat, indx_1, indx_2);
+	default:
+		throw Rcpp::exception("unknown type detected for big.matrix object!");
+	}
+}
+
+template <typename T>
+NumericVector freq_s(XPtr<BigMatrix> pMat, const IntegerVector index_, const int threads = 0){
 
     omp_setup(threads);
 
@@ -140,28 +179,102 @@ NumericVector freq(XPtr<BigMatrix> pMat, const IntegerVector index_, const int t
 			p1 += bigm[index_[j]][k];
 		}
 		maf = p1 / (ind * 2);
-		if(maf > 0.5){
-			maf = 1 - maf;
-		}
 		freq[j] = maf;
 	}
 	return freq;
 }
 
 // [[Rcpp::export]]
-NumericVector freq(SEXP pBigMat, const IntegerVector index_, const int threads = 0){
+NumericVector freq_s(SEXP pBigMat, const IntegerVector index_, const int threads = 0){
 
 	XPtr<BigMatrix> xpMat(pBigMat);
 
 	switch(xpMat->matrix_type()) {
 	case 1:
-		return freq<char>(xpMat, index_, threads);
+		return freq_s<char>(xpMat, index_, threads);
 	case 2:
-		return freq<short>(xpMat, index_, threads);
+		return freq_s<short>(xpMat, index_, threads);
 	case 4:
-		return freq<int>(xpMat, index_, threads);
+		return freq_s<int>(xpMat, index_, threads);
 	case 8:
-		return freq<double>(xpMat, index_, threads);
+		return freq_s<double>(xpMat, index_, threads);
+	default:
+		throw Rcpp::exception("unknown type detected for big.matrix object!");
+	}
+}
+
+template <typename T>
+double freq_h(XPtr<BigMatrix> pMat, const int indx_1, const int indx_2){
+
+	MatrixAccessor<T> bigm = MatrixAccessor<T>(*pMat);
+
+	int ind = pMat->nrow();
+	int k;
+	double freq;
+
+	double x11 = 0.0, x12 = 0.0, x21 = 0.0, x22 = 0.0;
+	for(k = 0; k < ind; k++){
+		int gi = bigm[indx_1][k];
+		int gj = bigm[indx_2][k];
+		if(gi == 0 && gj == 0) {
+			x11 += 2.0;
+		}
+		else if (gi == 1 && gj == 1) {
+			x11 += 1.0;
+			x22 += 1.0;
+		}
+		else if (gi == 2 && gj == 2) {
+			x22 += 2.0;
+		}
+		else if (gi == 0 && gj == 1) {
+			x11 += 1.0;
+			x12 += 1.0;
+		}
+		else if (gi == 1 && gj == 0) {
+			x11 += 1.0;
+			x21 += 1.0;
+		}
+		else if (gi == 0 && gj == 2) {
+			x12 += 2.0;
+		}
+		else if (gi == 2 && gj == 0) {
+			x21 += 2.0;
+		}
+		else if (gi == 1 && gj == 2) {
+			x12 += 1.0;
+			x22 += 1.0;
+		} else {
+			x21 += 1.0;
+			x22 += 1.0;
+		}
+	}
+	x11 /= ((double)(ind) * 2.0);
+	x12 /= ((double)(ind) * 2.0);
+	x21 /= ((double)(ind) * 2.0);
+	x22 /= ((double)(ind) * 2.0);
+	double p1 = x11 + x12;
+	double p2 = x21 + x22;
+	double q1 = x11 + x21;
+	double q2 = x12 + x22;
+	freq = (x11 * x22 - x12 * x21) / sqrt(p1 * p2 * q1 * q2);
+
+	return freq;
+}
+
+// [[Rcpp::export]]
+double freq_h(SEXP pBigMat, const int indx_1, const int indx_2){
+
+	XPtr<BigMatrix> xpMat(pBigMat);
+
+	switch(xpMat->matrix_type()) {
+	case 1:
+		return freq_h<char>(xpMat, indx_1, indx_2);
+	case 2:
+		return freq_h<short>(xpMat, indx_1, indx_2);
+	case 4:
+		return freq_h<int>(xpMat, indx_1, indx_2);
+	case 8:
+		return freq_h<double>(xpMat, indx_1, indx_2);
 	default:
 		throw Rcpp::exception("unknown type detected for big.matrix object!");
 	}

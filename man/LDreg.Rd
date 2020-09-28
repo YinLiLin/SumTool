@@ -4,8 +4,16 @@
 \alias{LDreg}
 \title{LD regression}
 \usage{
-LDreg(sumstat = NULL, ldscore = NULL, wld = NULL, maxz2 = 80,
-  maf = 0.05, nblock = 200, verbose = TRUE)
+LDreg(
+  sumstat = NULL,
+  ldscore = NULL,
+  wld = NULL,
+  M = NULL,
+  maxz2 = 80,
+  maf = 0.05,
+  nblock = 200,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{sumstat}{data.frame or list, results of single trait or multiple traits of GWAS summary statistics. For each summary statistic of a trait, the columns should be in the order of c("SNP", "Chr", "Pos", "A1", "A2", "BETA", "SE", "N"). If it's a data.frame, the heritability will be estimated, if it's a list containing multiple GWAS summary statistics, both heritability of traits and the genetic correlation of pair of traits will be estimated.}
@@ -13,6 +21,8 @@ LDreg(sumstat = NULL, ldscore = NULL, wld = NULL, maxz2 = 80,
 \item{ldscore}{data.frame, the ldscore for each SNP, the columns should be prepared in order of c("SNP", "Chr", "Pos", "A1", "A2", "MAF", "ldscore")}
 
 \item{wld}{data.frame, at least 2 colmuns, the first column is th SNP names, the last column is the weight for each SNP. Default equals to the 'ldscore' option}
+
+\item{M, }{integer, the number of total SNPs that are used to calculate LDscore}
 
 \item{maxz2}{double, max chi^2. Default is 80}
 

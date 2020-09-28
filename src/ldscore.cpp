@@ -1,3 +1,7 @@
+#if !defined(ARMA_64BIT_WORD)
+#define ARMA_64BIT_WORD 1
+#endif
+
 #include "stats.h"
 
 template <typename T>
@@ -10,12 +14,12 @@ SEXP LDscore_c(XPtr<BigMatrix> pMat, const IntegerVector index, const bool r2 = 
 	int m = index.size();
 	int ind = pMat->nrow();
 	int i, j, k;
-	double p1 = 0.0, q1 = 0.0, m1 = 0.0, s1 = 0.0, p2 = 0.0, q2 = 0.0, m2 = 0.0, s2 = 0.0, p12 = 0.0, r = 0.0, rr = 0.0;
+	double p1 = 0.0, m1 = 0.0, s1 = 0.0, p2 = 0.0, m2 = 0.0, s2 = 0.0, p12 = 0.0, r = 0.0, rr = 0.0;
 	
 	// MinimalProgressBar pb;
 
 	IntegerVector index_ = index - 1;
-	NumericVector freq_all = freq(pMat, index_, threads);
+	NumericVector freq_all = freq_s(pMat, index_, threads);
 	List Stat = BigStat(pMat, index_, threads);
 	NumericVector mean_all = Stat[0];
 	NumericVector sd_all = Stat[1];

@@ -27,13 +27,15 @@ function(x)
 	return(paste(num, char, sep="", collapse=""))
 }
 
+
 #' Data reading
 #'
-#' To read Plink binary format data into bigmemory (0, 1, 2) format
+#' To read Plink binary format data into bigmemory {(0, 1, 2) or (11, 12, 22)} format
 #'
 #' @param bfile character, prefix of Plink binary format data.
 #' @param maxLine number, set the number of lines to handle at a time, bigger lines require more memory.
 #' @param impute logical, whether to impute missing values in genotype.
+#' @param additive logical, whether to code the genotype into 0, 1, 2; otherwise, the genotype will be coded into 11, 12, 22, which can be used for summary data imputation.
 #' @param backingpath the path to the directory containing the file backing cache.
 #' @param descriptorfile the name of the file to hold the backingfile description, for subsequent use with ‘attach.big.matrix’; if ‘NULL’, the ‘backingfile’ is used as the root part of the descriptor file name.  The descriptor file is placed in the same directory as the backing files.
 #' @param backingfile the root name for the file(s) for the cache.
@@ -42,7 +44,7 @@ function(x)
 
 #' @examples
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
+#' data <- read_plink(bfile=ref_bfile_path, backingpath=tempdir(), threads=1, verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 
@@ -53,7 +55,8 @@ function(
 	bfile = "", 
 	maxLine = 1000,
 	impute = TRUE,
-	backingpath = NULL,
+	additive = TRUE, 
+	backingpath = getwd(),
 	descriptorfile = NULL,
 	backingfile = NULL,
 	verbose = TRUE,
@@ -62,18 +65,24 @@ function(
 	if(verbose)	version.info()
 	t1 <- as.numeric(Sys.time())
 	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
+	bfile <- as.character(bfile)
 	m <- FileNrow(paste(bfile, ".bim", sep=""))
 	n <- FileNrow(paste(bfile, ".fam", sep=""))
 	if(verbose)	cat("Number of SNPs: ", m , "\n", sep="")
 	if(verbose)	cat("Number of individuals: ", n , "\n", sep="")
 	if(verbose)	cat("Reading...\n")
+
+	if(is.null(backingfile) & is.null(backingfile)){
+		backingfile <- paste0(bfile,".bin")
+		descriptorfile <- paste0(bfile,".desc")
+	}
 	if(!is.null(backingfile))	backingfile <- basename(backingfile)
 	if(!is.null(descriptorfile))	descriptorfile <- basename(descriptorfile)
 	if(!is.null(backingfile) & is.null(descriptorfile))
 		stop("descriptorfile shoud be assigned.")
 	if(is.null(backingfile) & !is.null(descriptorfile))
 		stop("backingfile shoud be assigned.")
-	map_file = NULL
+
 	if(!is.null(descriptorfile)){
 		map_file <- unlist(strsplit(descriptorfile, "", fixed = TRUE))
 		sep_index <- which(map_file == ".")
@@ -96,11 +105,95 @@ function(
 		backingpath = backingpath,
 		descriptorfile = descriptorfile
 	)
-	rData_c(bfile = bfile, pBigMat = geno@address, maxLine = maxLine, impt = impute, verbose = verbose, threads = threads)
+	rBed_c(bfile = bfile, pBigMat = geno@address, maxLine = maxLine, impt = impute, add = additive, verbose = verbose, threads = threads)
 	t2 <- as.numeric(Sys.time())
 	if(verbose)	cat("Analysis finished:", as.character(Sys.time()), "\n")
 	if(verbose)	cat("Total Running time:", times(t2 - t1), "\n")
 	return(list(pheno=pheno, geno=geno, map=map))	
+}
+
+#' Data reading
+#'
+#' To read VCF format data into bigmemory {(0, 1, 2) or (11, 12, 21, 22)} format
+#'
+#' @param vfile character, full name of VCF file.
+#' @param maxLine number, set the number of lines to handle at a time, bigger lines require more memory.
+#' @param impute logical, whether to impute missing values in genotype.
+#' @param additive logical, whether to code the genotype into 0, 1, 2; otherwise, the genotype will be coded into 11, 12, 21, 22, which can be used for summary data imputation.
+#' @param backingpath the path to the directory containing the file backing cache.
+#' @param descriptorfile the name of the file to hold the backingfile description, for subsequent use with ‘attach.big.matrix’; if ‘NULL’, the ‘backingfile’ is used as the root part of the descriptor file name.  The descriptor file is placed in the same directory as the backing files.
+#' @param backingfile the root name for the file(s) for the cache.
+#' @param verbose logical, whether to print the log information
+#' @param threads number, the number of used threads for parallel process
+
+#' @examples
+#' ref_vfile_path <- system.file("extdata", "ref_geno.vcf", package = "SumTool")
+#' data <- read_vcf(vfile=ref_vfile_path, backingpath=tempdir(), threads=1, verbose=FALSE)
+#' geno <- data$geno
+#' map <- data$map
+
+#' @export
+
+read_vcf <- 
+function(
+	vfile = "", 
+	maxLine = 1000,
+	impute = TRUE,
+	additive = TRUE, 
+	backingpath = getwd(),
+	descriptorfile = NULL,
+	backingfile = NULL,
+	verbose = TRUE,
+	threads = 1
+){
+	if(verbose)	version.info()
+	t1 <- as.numeric(Sys.time())
+	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
+	vfile <- as.character(vfile)
+	rc <- VCF_Row_Col(vfile)
+	m <- rc$m
+	n <- rc$n
+	if(verbose)	cat("Number of SNPs: ", m , "\n", sep="")
+	if(verbose)	cat("Number of individuals: ", n , "\n", sep="")
+	if(verbose)	cat("Reading...\n")
+
+	if(is.null(backingfile) & is.null(backingfile)){
+		backingfile <- paste0(sub('....$','', vfile),".bin")
+		descriptorfile <- paste0(sub('....$','', vfile),".desc")
+	}
+	if(!is.null(backingfile))	backingfile <- basename(backingfile)
+	if(!is.null(descriptorfile))	descriptorfile <- basename(descriptorfile)
+	if(!is.null(backingfile) & is.null(descriptorfile))
+		stop("descriptorfile shoud be assigned.")
+	if(is.null(backingfile) & !is.null(descriptorfile))
+		stop("backingfile shoud be assigned.")
+
+	if(!is.null(descriptorfile)){
+		map_file <- unlist(strsplit(descriptorfile, "", fixed = TRUE))
+		sep_index <- which(map_file == ".")
+		if(length(sep_index)){
+			map_file <- paste0(map_file[1 : (sep_index[length(sep_index)] - 1)], collapse="")
+		}else{
+			map_file <- paste0(map_file, collapse="")
+		}
+		if(!is.null(backingpath))	map_file <- paste0(backingpath, "/", map_file)
+	}
+	geno <- bigmemory::big.matrix(
+		nrow = n,
+		ncol = m,
+		type = "char",
+		dimnames = c(NULL, NULL),
+		backingfile = backingfile,
+		backingpath = backingpath,
+		descriptorfile = descriptorfile
+	)
+	map <- rVCF_c(vcf_file = vfile, pBigMat = geno@address, maxLine = maxLine, add = additive, out = map_file, impt = impute, verbose = verbose, threads = threads)
+	map <- as.data.frame(map, stringsAsFactors=FALSE)
+	map$Pos <- as.numeric(map$Pos)
+	t2 <- as.numeric(Sys.time())
+	if(verbose)	cat("Analysis finished:", as.character(Sys.time()), "\n")
+	if(verbose)	cat("Total Running time:", times(t2 - t1), "\n")
+	return(list(pheno=NULL, geno=geno, map=map))	
 }
 
 #' Data writing
@@ -116,7 +209,7 @@ function(
 #' @examples
 #' # reading data
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
+#' data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 #'
@@ -141,12 +234,13 @@ function(
 	if(is.null(map))	stop("map information should be provided!")
 	if(ncol(map) != 5)	stop("5 columns should be provided in map!")
 	if(ncol(geno) != nrow(map))	stop("number of SNPs not equals between genotype and map!")
+	if(!all((geno[, 1]) <= 2))	stop("genotype should be coded as 0 1 2!")
 	m <- ncol(geno)
 	n <- nrow(geno)
 	if(verbose)	cat("Number of SNPs: ", m , "\n", sep="")
 	if(verbose)	cat("Number of individuals: ", n , "\n", sep="")
 	if(verbose)	cat("Writing...\n")
-	wData_c(pBigMat = geno@address, bed_file = out, verbose = verbose, threads = threads)
+	wBed_c(pBigMat = geno@address, bed_file = out, verbose = verbose, threads = threads)
 	write.table(cbind(1 : n, 1 : n, 0, 0, 0, -9), paste0(out, '.fam'), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = ' ')
 	write.table(cbind(map[, 2], map[, 1], 0, map[, 3 : 5]), paste0(out, '.bim'), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = ' ')
 	t2 <- as.numeric(Sys.time())
@@ -159,7 +253,7 @@ function(
 #'
 #' To impute Zscore using summary data by SImpute/SImpute-LD
 #'
-#' @param ref.geno big.matrix (n1 * m1), reference genotype panel
+#' @param ref.geno big.matrix (n1 * m1), reference genotype panel, can be loaded from both binary or vcf file, we recommend using phased vcf file for summary data imputation
 #' @param ref.map matrix (m1 * 5): SNPs, Chr, position, A1, A2
 #' @param typed.geno big.matrix (n2 * m2), individual level genotype for typed SNPs (this file is optional)
 #' @param typed matrix (m2 * 6): SNPs, Chr, position, A1, A2, Z
@@ -167,7 +261,6 @@ function(
 #' @param b number, set the buffer size in bp of each window, default 250000
 #' @param lambda number, ridge regression value on LD matrix of typed SNPs: solve(Rtt + diag(lambda))
 #' @param maf number, SNPs whose minor allele frequency are lower than set value will not be imputed
-#' @param correlation logical, if TRUE, the LD matrix will be constructed by correlation of all pairs
 #' @param verbose logical, whether to print the log information
 #' @param threads number, the number of used threads for parallel process
 
@@ -175,11 +268,12 @@ function(
 #' #----------------SImpute----------------#
 #'
 #' # get path of the attached files in package
-#' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
+#' ref_file_path <- system.file("extdata", "ref_geno", package = "SumTool")
 #' typed_z_path <- system.file("extdata", "typed.zscore", package = "SumTool")
 #'
 #' # reading data
-#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
+#' data <- read_bfile(bfile=ref_file_path, additive=FALSE, backingpath=tempdir(), 
+#' 	threads=1, verbose=FALSE)
 #' ref.geno <- data$geno
 #' ref.map <- data$map
 #' typed_z <- read.table(typed_z_path, header=TRUE)
@@ -189,8 +283,9 @@ function(
 #'
 #' #--------------SImpute-LD---------------#
 #'
-#' gwas_bfile_path <- system.file("extdata", "gwas_geno", package = "SumTool")
-#' gwas <- read_plink(bfile=gwas_bfile_path, threads=1, verbose=FALSE)
+#' gwas_file_path <- system.file("extdata", "gwas_geno", package = "SumTool")
+#' gwas <- read_bfile(bfile=gwas_file_path, additive=FALSE, backingpath=tempdir(), 
+#' 	threads=1, verbose=FALSE)
 #' typed.geno <- gwas$geno
 #' typed.map <- gwas$map
 #' #NOTE: the order of SNPs in 'typed.geno' should be consistent with the order in 'typed_z'.
@@ -202,20 +297,16 @@ function(
 
 #' @export
 
-SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed = NULL, w = 1000000, b = 500000, lambda = NULL, maf = 0.000001, correlation = TRUE, verbose = TRUE, threads = 1)
+SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed = NULL, w = 1000000, b = 500000, lambda = NULL, maf = 0.000001, verbose = TRUE, threads = 1)
 {
 
-	SImpute_bin <- function(ref.geno, ref.map, typed.geno = NULL, typed, lambda = 0.001, maf = 0.000001, correlation = TRUE, verbose = TRUE, threads = 1)
+	SImpute_bin <- function(ref.geno, ref.map, typed.geno = NULL, bin_index, typed, typed_bin_index, lambda = 0.001, maf = 0.000001, verbose = TRUE, threads = 0)
 	{
-		index <- match(typed[, 1], ref.map[, 1])
-		# if(sum(is.na(index)) != 0)	stop("Some typed SNPs don't exit in reference genotype panel!")
-		# typed <- typed[order(index), ]
-		# if(!is.null(typed.geno))	typed.geno <- deepcopy(typed.geno, cols = order(index))
-		# index <- match(typed[, 1], ref.map[, 1])
+		index <- match(typed[typed_bin_index, 1], ref.map[bin_index, 1])
 		if(is.null(typed.geno)){
-			imp <- SImputeZ_bin_c(ref.geno@address, typed_index = index, typed_value = data.matrix(typed[, -c(1:5), drop=FALSE]), verbose = verbose, lambda = lambda, maf = maf, haps = !correlation, threads = threads)
+			imp <- SImputeZ_bin_c(ref.geno@address, bin_index = bin_index - 1, typed_index = index - 1, typed_value = data.matrix(typed[typed_bin_index, -c(1:5), drop=FALSE]), verbose = verbose, lambda = lambda, maf = maf, threads = threads)
 		}else{
-			imp <- SImputeZ_ld_bin_c(ref.geno@address, typed.geno@address, typed_index = index, typed_value = data.matrix(typed[, -c(1:5), drop=FALSE]), verbose = verbose, lambda = lambda, maf = maf, haps = !correlation, threads = threads)
+			imp <- SImputeZ_ld_bin_c(ref.geno@address, typed.geno@address, bin_index = bin_index - 1, typed_index = index - 1, typed_bin_index = which(typed_bin_index) - 1, typed_value = data.matrix(typed[typed_bin_index, -c(1:5), drop=FALSE]), verbose = verbose, lambda = lambda, maf = maf, threads = threads)
 		}
 		imp <- data.frame(ref.map, imp)
 	}
@@ -223,8 +314,9 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 	if(verbose)	version.info()
 	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
 	#check parameter
-	if(verbose)	cat("Data and parameters check...")
+	if(verbose)	cat("Data and parameters checking\n")
 	if(is.null(ref.geno))	stop("Please provide ref.geno!")
+	if(!all((ref.geno[, 1]) >= 11))	stop("genotype should be coded as 11 12 21 22!")
 	if(!is.big.matrix(ref.geno))	stop("genotype should be in 'big.matrix' format!")
 	if(is.null(ref.map))	stop("Please provide ref.map!")
 	if(is.null(typed))	stop("Please provide typed!")
@@ -243,20 +335,23 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 	#if(hasNA(ref.geno@address, threads = threads))	stop("NA is not allowed in ref.geno!")
 	if(!is.null(typed.geno)){
 		if(!is.big.matrix(typed.geno))	stop("genotype should be in 'big.matrix' format!")
+		if(!all((typed.geno[, 1]) >= 11))	stop("genotype should be coded as 11 12 21 22!")
 		if(ncol(typed.geno) != nrow(typed))	stop("Number of SNPs not equals between typed.geno and typed!")
 	}
 	#if(!is.null(typed.geno) && hasNA(typed.geno@address, threads = threads))	stop("NA is not allowed in typed.geno!")
 
 	SNP_NA <- is.na(ref.map[, 3]) | ref.map[, 3] == 0 | ref.map[, 3] == -9
 	if(sum(SNP_NA) != 0){
-		ref.geno <- deepcopy(ref.geno, cols = !SNP_NA)
-		ref.map <- ref.map[!SNP_NA, ]
+		stop("physical position of reference map should be digital values!")
+		# ref.geno <- deepcopy(ref.geno, cols = !SNP_NA)
+		# ref.map <- ref.map[!SNP_NA, ]
 	}
 	typed_N <- nrow(typed)
 	SNP_NA <- is.na(typed[, 3]) | typed[, 3] == 0 | typed[, 3] == -9
 	if(sum(SNP_NA) != 0){
-		if(!is.null(typed.geno)) typed.geno <- deepcopy(typed.geno, cols = !SNP_NA)
-		typed <- typed[!SNP_NA, , drop=FALSE]
+		stop("physical position of typed SNPs should be digital values!")
+		# if(!is.null(typed.geno)) typed.geno <- deepcopy(typed.geno, cols = !SNP_NA)
+		# typed <- typed[!SNP_NA, , drop=FALSE]
 	}
 	mergedSNP <- intersect(typed[, 1], ref.map[, 1])
 	if(length(mergedSNP) == 0)	stop("No shared SNPs between reference and typed SNPs!")
@@ -274,6 +369,11 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 		row_logi <- cbind(row_logi, ref.map[match(mergedSNP, ref.map[, 1]), i] == typed[, i])
 	}
 	typed_index <- apply(row_logi, 1, all); rm(row_logi); gc()
+	if(!all(typed_index)){
+		# typed <- typed[typed_index, , drop=FALSE]
+		# if(!is.null(typed.geno)) typed.geno <- deepcopy(typed.geno, cols = typed_index)
+		stop(sum(!typed_index), " SNPs sharing same names between reference and sumstat don't have equal map information!\nSee: ", paste(head(mergedSNP[!typed_index]), collapse=","), "...\n")
+	}
 	# typed_index <- sapply(1:nrow(typed), function(i){
 	# 	if(all(typed[i, 1:4] == ref.map[typed_match_index[i], ])){
 	# 		return(TRUE)
@@ -282,19 +382,12 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 	# 	}
 	# })
 
-	if(verbose) cat("(Qualified)\n")
-	if(!all(typed_index)){
-		typed <- typed[typed_index, , drop=FALSE]
-		if(!is.null(typed.geno)) typed.geno <- deepcopy(typed.geno, cols = typed_index)
-		if(verbose)	cat("(Warning:", sum(!typed_index), "SNPs sharing same names between reference and typed don't have equal map information!)\n")
-	}
-
 	#SImpute or SImpute-LD
 	if(!is.null(typed.geno)){
 		if(is.null(lambda))	lambda <- 0.001
 		if(verbose)	cat(paste("SImpute-LD on Zscore started...\n", sep=""))
 	}else{
-		if(is.null(lambda))	lambda <- 0.1
+		if(is.null(lambda))	lambda <- 0.01
 		if(verbose)	cat(paste("SImpute on Zscore started...\n", sep=""))
 	}
 	gc()
@@ -312,10 +405,6 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 	if(verbose)	cat("Window size is ", w / 1e6, "Mb", "\n", sep="")
 	if(verbose)	cat("Buffer size is ", b / 1e3, "Kb", "\n", sep="")
 
-	if(verbose){
-		if(!correlation)	cat("Using haplotype for LD matrix\n")
-		if(correlation)	cat("Using correlation for LD matrix\n")
-	}
 	if(verbose)	cat("Lambda in ridge regression is", lambda, "\n")
 
 	chr <- unique(ref.map[, 2])
@@ -353,19 +442,7 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 			index2 <- typed_chri_index & typed[, 3] >= wind_min_b[i] & typed[, 3] <= wind_max_b[i]
 			if(length(index1) != 0 & sum(index2) != 0){
 				if(verbose)	cat("The ", i, "th window of Chr ", chri, ": Start[", min(ref.map[index1, 3], na.rm = TRUE),"] ~ End[", max(ref.map[index1, 3], na.rm = TRUE),"]\n", sep="")
-				if(length(index1) == nrow(ref.map)){
-					if(is.null(typed.geno)){
-						imp_bin <- SImpute_bin(ref.geno = ref.geno, ref.map = ref.map, typed.geno = typed.geno, typed = (typed[index2, ]), verbose = verbose, lambda = lambda, maf = maf, correlation = correlation, threads = threads)
-					}else{
-						imp_bin <- SImpute_bin(ref.geno = ref.geno, ref.map = ref.map, typed.geno = deepcopy(typed.geno, cols = index2), typed = (typed[index2, ]), verbose = verbose, lambda = lambda, maf = maf, correlation = correlation, threads = threads)
-					}
-				}else{
-					if(is.null(typed.geno)){
-						imp_bin <- SImpute_bin(ref.geno = (deepcopy(ref.geno, cols=index1)), ref.map = (ref.map[index1, ]), typed.geno = typed.geno, typed = (typed[index2, ]), verbose = verbose, lambda = lambda, maf = maf, correlation = correlation, threads = threads)
-					}else{
-						imp_bin <- SImpute_bin(ref.geno = (deepcopy(ref.geno, cols=index1)), ref.map = (ref.map[index1, ]), typed.geno = deepcopy(typed.geno, cols = index2), typed = (typed[index2, ]), verbose = verbose, lambda = lambda, maf = maf, correlation = correlation, threads = threads)
-					}
-				}
+				imp_bin <- SImpute_bin(ref.geno = ref.geno, ref.map = ref.map, bin_index = index1, typed.geno = typed.geno, typed = typed, typed_bin_index = index2, verbose = verbose, lambda = lambda, maf = maf, threads = threads)
 			}else if(length(index1) != 0 & sum(index2) == 0){
 				imp_bin <- cbind(ref.map[index1, ], matrix(NA, length(index1), (ncol(typed) - 5)))
 			}else{
@@ -396,7 +473,7 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 #'
 #' To impute marginal effect using summary data by SImpute/SImpute-LD
 #'
-#' @param ref.geno big.matrix (n1 * m1), reference genotype panel
+#' @param ref.geno big.matrix (n1 * m1), reference genotype panel, can be loaded from both binary or vcf file, we recommend using phased vcf file for summary data imputation
 #' @param ref.map matrix (m1 * 5): SNPs, Chr, position, A1, A2
 #' @param typed.geno big.matrix (n2 * m2), individual level genotype for typed SNPs (this file is optional)
 #' @param typed matrix (m2 * 8): SNPs, Chr, position, A1, A2, BETA, SE, N
@@ -404,7 +481,6 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 #' @param b number, set the buffer size in bp of each window, default 250000
 #' @param lambda number, ridge regression value on LD matrix of typed SNPs: solve(Rtt + diag(lambda))
 #' @param maf number, SNPs whose minor allele frequency are lower than set value will not be imputed
-#' @param correlation logical, if TRUE, the LD matrix will be constructed by correlation of all pairs
 #' @param verbose logical, whether to print the log information
 #' @param threads number, the number of used threads for parallel process
 
@@ -412,11 +488,12 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 #' #----------------SImpute----------------#
 #'
 #' # get path of the attached files in package
-#' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-#' typed_b_path <- system.file("extdata", "typed.marginal", package = "SumTool")
+#' ref_file_path <- system.file("extdata", "ref_geno", package = "SumTool")
+#' typed_b_path <- system.file("extdata", "typed.beta", package = "SumTool")
 #'
 #' # reading data
-#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
+#' data <- read_bfile(bfile=ref_file_path, additive=FALSE, backingpath=tempdir(), 
+#' 	threads=1, verbose=FALSE)
 #' ref.geno <- data$geno
 #' ref.map <- data$map
 #' typed_b <- read.table(typed_b_path, header=TRUE)
@@ -426,8 +503,9 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 #'
 #' #--------------SImpute-LD---------------#
 #'
-#' gwas_bfile_path <- system.file("extdata", "gwas_geno", package = "SumTool")
-#' gwas <- read_plink(bfile=gwas_bfile_path, threads=1, verbose=FALSE)
+#' gwas_file_path <- system.file("extdata", "gwas_geno", package = "SumTool")
+#' gwas <- read_bfile(bfile=gwas_file_path,  additive=FALSE, backingpath=tempdir(), 
+#' 	threads=1, verbose=FALSE)
 #' typed.geno <- gwas$geno
 #' typed.map <- gwas$map
 #' #NOTE: the order of SNPs in 'typed.geno' should be consistent with the order in 'typed_b'.
@@ -439,20 +517,16 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 
 #' @export
 
-SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed = NULL, w = 1000000, b = 500000, lambda = NULL, maf = 0.000001, correlation = TRUE, verbose = TRUE, threads = 1)
+SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed = NULL, w = 1000000, b = 500000, lambda = NULL, maf = 0.000001, verbose = TRUE, threads = 1)
 {
 
-	SImpute_bin <- function(ref.geno, ref.map, typed.geno = NULL, typed, lambda = 0.001, maf = 0.000001, correlation = TRUE, verbose = TRUE, threads = 0)
+	SImpute_bin <- function(ref.geno, ref.map, typed.geno = NULL, bin_index, typed, typed_bin_index, lambda = 0.001, maf = 0.000001, verbose = TRUE, threads = 0)
 	{
-		index <- match(typed[, 1], ref.map[, 1])
-		# if(sum(is.na(index)) != 0)	stop("Some typed SNPs don't exit in reference genotype panel!")
-		# typed <- typed[order(index), ]
-		# if(!is.null(typed.geno))	typed.geno <- deepcopy(typed.geno, cols = order(index))
-		# index <- match(typed[, 1], ref.map[, 1])
+		index <- match(typed[typed_bin_index, 1], ref.map[bin_index, 1])
 		if(is.null(typed.geno)){
-			imp <- SImputeZ_bin_c(ref.geno@address, typed_index = index, typed_value = data.matrix(typed[, -c(1:5), drop=FALSE]), verbose = verbose, lambda = lambda, maf = maf, haps = !correlation, threads = threads)
+			imp <- SImputeZ_bin_c(ref.geno@address, bin_index = bin_index - 1, typed_index = index - 1, typed_value = data.matrix(typed[typed_bin_index, -c(1:5), drop=FALSE]), verbose = verbose, lambda = lambda, maf = maf, threads = threads)
 		}else{
-			imp <- SImputeZ_ld_bin_c(ref.geno@address, typed.geno@address, typed_index = index, typed_value = data.matrix(typed[, -c(1:5), drop=FALSE]), verbose = verbose, lambda = lambda, maf = maf, haps = !correlation, threads = threads)
+			imp <- SImputeZ_ld_bin_c(ref.geno@address, typed.geno@address, bin_index = bin_index - 1, typed_index = index - 1, typed_bin_index = which(typed_bin_index) - 1, typed_value = data.matrix(typed[typed_bin_index, -c(1:5), drop=FALSE]), verbose = verbose, lambda = lambda, maf = maf, threads = threads)
 		}
 		imp <- data.frame(ref.map, imp)
 	}
@@ -461,9 +535,10 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
 	
 	#check parameter
-	if(verbose)	cat("Data and parameters check...")
+	if(verbose)	cat("Data and parameters checking\n")
 	if(is.null(ref.geno))	stop("Please provide ref.geno!")
 	if(!is.big.matrix(ref.geno))	stop("genotype should be in 'big.matrix' format!")
+	if(!all((ref.geno[, 1]) >= 11))	stop("genotype should be coded as 11 12 21 22!")
 	if(is.null(ref.map))	stop("Please provide ref.map!")
 	if(is.null(typed))	stop("Please provide typed!")
 	if(any(duplicated(ref.map[, 1])))	stop("duplicated SNP names exist in ref.map file!")
@@ -481,20 +556,23 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 	#if(hasNA(ref.geno@address, threads = threads))	stop("NA is not allowed in ref.geno!")
 	if(!is.null(typed.geno)){
 		if(!is.big.matrix(typed.geno))	stop("genotype should be in 'big.matrix' format!")
+		if(!all((typed.geno[, 1]) >= 11))	stop("genotype should be coded as 11 12 21 22!")
 		if(ncol(typed.geno) != nrow(typed))	stop("Number of SNPs not equals between typed.geno and typed!")
 	}
 	#if(!is.null(typed.geno) && hasNA(typed.geno@address, threads = threads))	stop("NA is not allowed in typed.geno!")
 
 	SNP_NA <- is.na(ref.map[, 3]) | ref.map[, 3] == 0 | ref.map[, 3] == -9
 	if(sum(SNP_NA) != 0){
-		ref.geno <- deepcopy(ref.geno, cols = !SNP_NA)
-		ref.map <- ref.map[!SNP_NA, ]
+		stop("physical position of reference map should be digital values!")
+		# ref.geno <- deepcopy(ref.geno, cols = !SNP_NA)
+		# ref.map <- ref.map[!SNP_NA, ]
 	}
 	typed_N <- nrow(typed)
 	SNP_NA <- is.na(typed[, 3]) | typed[, 3] == 0 | typed[, 3] == -9
 	if(sum(SNP_NA) != 0){
-		if(!is.null(typed.geno)) typed.geno <- deepcopy(typed.geno, cols = !SNP_NA)
-		typed <- typed[!SNP_NA, , drop=FALSE]
+		stop("physical position of typed SNPs should be digital values!")
+		# if(!is.null(typed.geno)) typed.geno <- deepcopy(typed.geno, cols = !SNP_NA)
+		# typed <- typed[!SNP_NA, , drop=FALSE]
 	}
 	mergedSNP <- intersect(typed[, 1], ref.map[, 1])
 	if(length(mergedSNP) == 0)	stop("No shared SNPs between reference and typed SNPs!")
@@ -512,6 +590,11 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 		row_logi <- cbind(row_logi, ref.map[match(mergedSNP, ref.map[, 1]), i] == typed[, i])
 	}
 	typed_index <- apply(row_logi, 1, all); rm(row_logi); gc()
+	if(!all(typed_index)){
+		# typed <- typed[typed_index, , drop=FALSE]
+		# if(!is.null(typed.geno)) typed.geno <- deepcopy(typed.geno, cols = typed_index)
+		stop(sum(!typed_index), " SNPs sharing same names between reference and sumstat don't have equal map information!\nSee: ", paste(head(mergedSNP[!typed_index]), collapse=","), "...\n")
+	}
 	# typed_index <- sapply(1:nrow(typed), function(i){
 	# 	if(all(typed[i, 1:4] == ref.map[typed_match_index[i], ])){
 	# 		return(TRUE)
@@ -519,12 +602,6 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 	# 		return(FALSE)
 	# 	}
 	# })
-	if(verbose) cat("(Qualified)\n")
-	if(!all(typed_index)){
-		typed <- typed[typed_index, , drop=FALSE]
-		if(!is.null(typed.geno)) typed.geno <- deepcopy(typed.geno, cols = typed_index)
-		if(verbose)	cat("(Warning:", sum(!typed_index), "SNPs sharing same names between reference and typed don't have equal map information!)\n")
-	}
 
 	#SImpute or SImpute-LD
 	if(!is.null(typed.geno)){
@@ -533,18 +610,22 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 		if(verbose)	cat(paste("SImpute-LD on Marginal effect and SE started...\n", sep=""))
 	}else{
 		n <- round(mean(typed[, ncol(typed)]))
-		if(is.null(lambda))	lambda <- 0.1
+		if(is.null(lambda))	lambda <- 0.01
 		if(verbose)	cat(paste("SImpute on Marginal effect and SE started...\n", sep=""))
 	}
 	gc()
 	
 	t1 <- as.numeric(Sys.time())
 
-	xixj_all <- BigStat(ref.geno@address, index_ = 0 : (ncol(ref.geno) - 1), threads = threads)$sd
-	xixj_all <- xixj_all * xixj_all
+	pi <- freq_snp(ref.geno@address, index_ = 0 : (ncol(ref.geno) - 1), threads = threads)
+	# xixj_all <- BigStat(ref.geno@address, index_ = 0 : (ncol(ref.geno) - 1), threads = threads)$sd
+	# xixj_all <- xixj_all * xixj_all
+	xixj_all <- 2 * pi * (1 - pi) * (nrow(ref.geno) - 1)
 	if(!is.null(typed.geno)){
-		xixj_typed <- BigStat(typed.geno@address, index_ = 0 : (ncol(typed.geno) - 1), threads = threads)$sd
-		xixj_typed <- xixj_typed * xixj_typed
+		# xixj_typed <- BigStat(typed.geno@address, index_ = 0 : (ncol(typed.geno) - 1), threads = threads)$sd
+		# xixj_typed <- xixj_typed * xixj_typed
+		pi <- freq_snp(typed.geno@address, index_ = 0 : (ncol(typed.geno) - 1), threads = threads)
+		xixj_typed <- 2 * pi * (1 - pi) * (n - 1)
 	}else{
 		xixj_typed <- xixj_all[match(typed[, 1], ref.map[, 1])] * (n / nrow(ref.geno))
 	}
@@ -563,10 +644,6 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 	if(verbose)	cat("Window size is ", w / 1e6, "Mb", "\n", sep="")
 	if(verbose)	cat("Buffer size is ", b / 1e3, "Kb", "\n", sep="")
 
-	if(verbose){
-		if(!correlation)	cat("Using haplotype for LD matrix\n")
-		if(correlation)	cat("Using correlation for LD matrix\n")
-	}
 	if(verbose)	cat("Lambda in ridge regression is", lambda, "\n")
 	chr <- unique(ref.map[, 2])
 	imp <- typed_temp
@@ -602,19 +679,7 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 			index2 <- typed_chri_index & typed[, 3] >= wind_min_b[i] & typed[, 3] <= wind_max_b[i]
 			if(length(index1) != 0 & sum(index2) != 0){
 				if(verbose)	cat("The ", i, "th window of Chr ", chri, ": Start[", min(ref.map[index1, 3], na.rm = TRUE),"] ~ End[", max(ref.map[index1, 3], na.rm = TRUE),"]\n", sep="")
-				if(length(index1) == nrow(ref.map)){
-					if(is.null(typed.geno)){
-						imp_bin <- SImpute_bin(ref.geno = ref.geno, ref.map = ref.map, typed.geno = typed.geno, typed = (cbind(typed[, 1 : 5], z)[index2, ]), verbose = verbose, lambda = lambda, maf = maf, correlation = correlation, threads = threads)
-					}else{
-						imp_bin <- SImpute_bin(ref.geno = ref.geno, ref.map = ref.map, typed.geno = deepcopy(typed.geno, cols = index2), typed = (cbind(typed[, 1 : 5], z)[index2, ]), verbose = verbose, lambda = lambda, maf = maf, correlation = correlation, threads = threads)
-					}
-				}else{
-					if(is.null(typed.geno)){
-						imp_bin <- SImpute_bin(ref.geno = (deepcopy(ref.geno, cols=index1)), ref.map = (ref.map[index1, ]), typed.geno = typed.geno, typed = (cbind(typed[, 1 : 5], z)[index2, ]), verbose = verbose, lambda = lambda, maf = maf, correlation = correlation, threads = threads)
-					}else{
-						imp_bin <- SImpute_bin(ref.geno = (deepcopy(ref.geno, cols=index1)), ref.map = (ref.map[index1, ]), typed.geno = deepcopy(typed.geno, cols = index2), typed = (cbind(typed[, 1 : 5], z)[index2, ]), verbose = verbose, lambda = lambda, maf = maf, correlation = correlation, threads = threads)
-					}
-				}
+				imp_bin <- SImpute_bin(ref.geno = ref.geno, ref.map = ref.map, bin_index = index1, typed.geno = typed.geno, typed = cbind(typed[, 1 : 5], z), typed_bin_index = index2, verbose = verbose, lambda = lambda, maf = maf, threads = threads)
 			}else if(length(index1) != 0 & sum(index2) == 0){
 				imp_bin <- cbind(ref.map[index1, ], matrix(NA, length(index1), 1))
 			}else{
@@ -640,6 +705,8 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 	}
 	imp[match(typed[, 1], imp[, 1]), c(6:7)] <- typed[, c(6:7)]
 	imp <- imp[order(imp[, 2], imp[, 3]), ]
+	imp <- data.frame(imp, N = n)
+	imp$N[match(typed[, 1], imp[, 1])] <- typed[, ncol(typed)]
 	t2 <- as.numeric(Sys.time())
 	if(verbose)	cat("Imputation accomplished successfully.\n")
 	if(verbose)	cat("Analysis finished:", as.character(Sys.time()), "\n")
@@ -662,7 +729,7 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 
 #' @examples
 #' gwas_bfile_path <- system.file("extdata", "gwas_geno", package = "SumTool")
-#' data <- read_plink(bfile=gwas_bfile_path, threads=1, verbose=FALSE)
+#' data <- read_plink(bfile=gwas_bfile_path, threads=1, verbose=FALSE, backingpath=tempdir())
 #' geno <- data$geno
 #' ld <- LDcal(geno=geno, threads=1, verbose=FALSE)
 
@@ -674,6 +741,7 @@ LDcal <- function(geno = NULL, index = NULL, threads = 1, lambda = 0, chisq = 0,
 	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
 	if(verbose)	cat("Number of individuals:", nrow(geno), "\n")
 	if(verbose)	cat("Number of SNPs:", ncol(geno), "\n")
+	if(!all((geno[, 1]) <= 2))	stop("genotype should be coded as 0 1 2!")
 	t1 <- as.numeric(Sys.time())
 	if(is.null(out)){
 		file.back <- FALSE
@@ -725,7 +793,7 @@ LDcal <- function(geno = NULL, index = NULL, threads = 1, lambda = 0, chisq = 0,
 
 #' @examples
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-#' data <- read_plink(bfile=ref_bfile_path, threads=1)
+#' data <- read_plink(bfile=ref_bfile_path, backingpath=tempdir(), threads=1)
 #' geno <- data$geno
 #' map <- data$map
 #' y <- data$pheno[,1]
@@ -738,6 +806,7 @@ LMreg <- function(y, geno = NULL, map = NULL, X = NULL, threads = 1, verbose = T
 	if(verbose)	version.info()
 	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
 	if(is.null(geno))	stop("Please provide genotype!")
+	if(!all((geno[, 1]) <= 2))	stop("genotype should be coded as 0 1 2!")
 	if(is.null(map))	stop("Please provide map!")
 	if(!is.big.matrix(geno))	stop("genotype should be in 'big.matrix' format!")
 	if(ncol(geno) != nrow(map))	stop("Number of SNPs not equals between genotype and map!")
@@ -793,7 +862,7 @@ LMreg <- function(y, geno = NULL, map = NULL, X = NULL, threads = 1, verbose = T
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 #' 
 #' # load data
-#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
+#' data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 #' ldscore <- LDscore(geno = geno, map = map, w = 100000, b=12500, threads = 1, verbose=FALSE)
@@ -808,8 +877,9 @@ LDscore <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2 = TRUE,
 	
 	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
 	#check parameter
-	if(verbose)	cat("Data and parameters check...")
+	if(verbose)	cat("Data and parameters checking\n")
 	if(is.null(geno))	stop("Please provide geno!")
+	if(!all((geno[, 1]) <= 2))	stop("genotype should be coded as 0 1 2!")
 	if(!is.big.matrix(geno))	stop("genotype should be in 'big.matrix' format!")
 	if(is.null(map))	stop("Please provide map!")
 	if(ncol(map) != 5)	stop("Only 5 columns limited for map!")
@@ -819,7 +889,6 @@ LDscore <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2 = TRUE,
 		if(is.factor(map[, i]))	map[, i] <- as.character.factor(map[, i])
 	}
 	#if(hasNA(geno@address, threads = threads))	stop("NA is not allowed in geno!")
-	if(verbose) cat("(Qualified)\n")
 
 	SNP_NA <- is.na(map[, 2 : 3])
 	if(sum(SNP_NA) != 0){
@@ -906,7 +975,7 @@ LDscore <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2 = TRUE,
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 #' 
 #' # load data
-#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
+#' data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 #' snp <- LDprune(geno = geno, map = map, w = 100000, b=50000, threads = 1, verbose=FALSE)
@@ -921,8 +990,9 @@ LDprune <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2.cutoff 
 	
 	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
 	#check parameter
-	if(verbose)	cat("Data and parameters check...")
+	if(verbose)	cat("Data and parameters checking\n")
 	if(is.null(geno))	stop("Please provide geno!")
+	if(!all((geno[, 1]) <= 2))	stop("genotype should be coded as 0 1 2!")
 	if(!is.big.matrix(geno))	stop("genotype should be in 'big.matrix' format!")
 	if(is.null(map))	stop("Please provide map!")
 	if(ncol(map) != 5)	stop("Only 5 columns limited for map!")
@@ -932,7 +1002,6 @@ LDprune <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2.cutoff 
 		if(is.factor(map[, i]))	map[, i] <- as.character.factor(map[, i])
 	}
 	#if(hasNA(geno@address, threads = threads))	stop("NA is not allowed in geno!")
-	if(verbose) cat("(Qualified)\n")
 
 	SNP_NA <- is.na(map[, 2 : 3])
 	if(sum(SNP_NA) != 0){
@@ -1020,7 +1089,7 @@ LDprune <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2.cutoff 
 #' p_path <- system.file("extdata", "P.txt", package = "SumTool")
 
 #' # load data
-#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
+#' data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 #' pdata <- read.table(p_path, header = TRUE)
@@ -1036,12 +1105,14 @@ LDclump <- function(geno = NULL, map = NULL, p = NULL, w = 1000000, r2.cutoff = 
 	
 	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
 	#check parameter
-	if(verbose)	cat("Data and parameters check...")
+	if(verbose)	cat("Data and parameters checking\n")
 	if(is.null(geno))	stop("Please provide geno!")
+	if(!all((geno[, 1]) <= 2))	stop("genotype should be coded as 0 1 2!")
 	if(!is.big.matrix(geno))	stop("genotype should be in 'big.matrix' format!")
 	if(is.null(map))	stop("Please provide map!")
 	if(is.null(p))	stop("Please provide summary statistic with p-values included at the end of column!")
 	if(ncol(p) < 2)	stop("At least 2 columns should be provided, the first column should be SNP names, the last column should be the pvalues")
+	if(sum(is.na(p[, ncol(p)])) != 0)	stop("NAs are not allowed in 'p'!")
 	if(!is.numeric(p[, ncol(p)]))	stop("p-values should be numeric defined!")
 	if(ncol(map) != 5)	stop("Only 5 columns limited for map!")
 	if(ncol(geno) != nrow(map))	stop("Number of SNPs not equals between geno and map!")
@@ -1050,7 +1121,6 @@ LDclump <- function(geno = NULL, map = NULL, p = NULL, w = 1000000, r2.cutoff = 
 		if(is.factor(map[, i]))	map[, i] <- as.character.factor(map[, i])
 	}
 	#if(hasNA(geno@address, threads = threads))	stop("NA is not allowed in geno!")
-	if(verbose) cat("(Qualified)\n")
 
 	SNP_NA <- is.na(map[, 2 : 3])
 	if(sum(SNP_NA) != 0){
@@ -1136,12 +1206,12 @@ LDclump <- function(geno = NULL, map = NULL, p = NULL, w = 1000000, r2.cutoff = 
 #' @param verbose logical, whether to print the log information
 
 #' @examples
-#' sumstat_path <- system.file("extdata", "typed.marginal", package = "SumTool")
+#' sumstat_path <- system.file("extdata", "typed.beta", package = "SumTool")
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 #' 
 #' # load data
 #' sumstat <- read.table(sumstat_path, header=TRUE)
-#' data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
+#' data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 #' h2 <- 0.5
@@ -1156,10 +1226,11 @@ SBLUP <- function(sumstat = NULL, geno = NULL, map = NULL, lambda = NULL, w = 1e
 	t1 <- as.numeric(Sys.time())
 	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
 	#check parameter
-	if(verbose)	cat("Data and parameters check...")
+	if(verbose)	cat("Data and parameters checking\n")
 	if(is.null(sumstat))	stop("Please provide 'sumstat'!")
 	if(!is.big.matrix(geno))	stop("genotype should be in 'big.matrix' format!")
 	if(is.null(geno))	stop("Please provide 'geno'!")
+	if(!all((geno[, 1]) <= 2))	stop("genotype should be coded as 0 1 2!")
 	if(is.null(map))	stop("Please provide 'map'!")
 	if(ncol(map) != 5)	stop("Only 5 columns limited for map! (SNP Chr Pos A1 A2)")
 	if(ncol(sumstat) != 8)	stop("Only 8 columns limited for typed! (SNP Chr Pos A1 A2 beta se N)")
@@ -1176,8 +1247,7 @@ SBLUP <- function(sumstat = NULL, geno = NULL, map = NULL, lambda = NULL, w = 1e
 	if(any(duplicated(map[, 1])))	stop("duplicated SNP names exist in map file!")
 	if(any(duplicated(sumstat[, 1])))	stop("duplicated SNP names exist in sumstat file!")
 	#if(hasNA(geno@address, threads = threads))	stop("NA is not allowed in geno!")
-	if(is.null(lambda))	stop("'lambda should be provided! \nlambda=m*((1/h2)-1), where m is the number of SNPs, h2 is the heritability of trait.")
-	if(verbose) cat("(Qualified)\n")
+	if(is.null(lambda))	stop("lambda should be provided! \nlambda=m*((1/h2)-1), where m is the number of SNPs, h2 is the heritability of trait.")
 
 	#confirm parameters
 	if(verbose)	cat("Number of total SNPs in geno is ", ncol(geno) , "\n", sep="")
@@ -1194,8 +1264,9 @@ SBLUP <- function(sumstat = NULL, geno = NULL, map = NULL, lambda = NULL, w = 1e
 	}
 	indx <- apply(row_logi, 1, all); rm(row_logi); gc()
 	if(!all(indx)){
-		sumstat <- sumstat[indx, ]
-		if(verbose)	cat("(Warning:", sum(!indx), "SNPs sharing same names between reference and sumstat don't have equal map information!)\n")
+		stop(sum(!indx), " SNPs sharing same names between reference and sumstat don't have equal map information!\nSee: ", paste(head(mergedSNP[!indx]), collapse=","), "...\n")
+		# sumstat <- sumstat[indx, ]
+		# if(verbose)	cat("(Warning:", sum(!indx), "SNPs sharing same names between reference and sumstat don't have equal map information!)\n")
 	}
 	if(nrow(sumstat) == 0)	stop("No shared SNPs between sumstat and map! Please check the chr, pos, A1 and A2 for the SNPs with same names")
 	if(verbose)	cat("Ridge regression coefficient", lambda, "\n")
@@ -1256,6 +1327,7 @@ SBLUP <- function(sumstat = NULL, geno = NULL, map = NULL, lambda = NULL, w = 1e
 #' @param sumstat data.frame or list, results of single trait or multiple traits of GWAS summary statistics. For each summary statistic of a trait, the columns should be in the order of c("SNP", "Chr", "Pos", "A1", "A2", "BETA", "SE", "N"). If it's a data.frame, the heritability will be estimated, if it's a list containing multiple GWAS summary statistics, both heritability of traits and the genetic correlation of pair of traits will be estimated.
 #' @param ldscore data.frame, the ldscore for each SNP, the columns should be prepared in order of c("SNP", "Chr", "Pos", "A1", "A2", "MAF", "ldscore")
 #' @param wld data.frame, at least 2 colmuns, the first column is th SNP names, the last column is the weight for each SNP. Default equals to the 'ldscore' option
+#' @param M, integer, the number of total SNPs that are used to calculate LDscore
 #' @param maxz2 double, max chi^2. Default is 80
 #' @param maf double, Minor allele frequency lower bound. Default is MAF > 0.05
 #' @param nblock int, number of blocks for jackknife estimation
@@ -1276,13 +1348,13 @@ SBLUP <- function(sumstat = NULL, geno = NULL, map = NULL, lambda = NULL, w = 1e
 
 #' @export
 
-LDreg <- function(sumstat = NULL, ldscore = NULL, wld = NULL, maxz2 = 80, maf = 0.05, nblock = 200, verbose = TRUE){
+LDreg <- function(sumstat = NULL, ldscore = NULL, wld = NULL, M = NULL, maxz2 = 80, maf = 0.05, nblock = 200, verbose = TRUE){
 
 	if(verbose)	version.info()
 	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
 	t1 <- as.numeric(Sys.time())
 
-	h2_est <- function(sumstat, ldscore, wld = NULL, maxz2, maf, nblock, verbose){
+	h2_est <- function(sumstat, ldscore, wld = NULL, M = NULL, maxz2, maf, nblock, verbose){
 		if(ncol(sumstat) != 8)	stop("Number of columns for sumstat should be 8 (snp chr pos a1 a2 beta se n).")
 		if(ncol(ldscore) != 7)	stop("Number of columns for ldscore should be 7 (snp chr pos a1 a2 maf ldscore).")
 		if(verbose)	cat("Number of SNPs for summary statistics", nrow(sumstat), "\n")
@@ -1294,7 +1366,7 @@ LDreg <- function(sumstat = NULL, ldscore = NULL, wld = NULL, maxz2 = 80, maf = 
 
 		# order ldscore by the positin on genome
 		ldscore <- ldscore[order(ldscore[, 2], ldscore[, 3]), ]
-		M <- sum(ldscore[, 6] > maf)
+		if(is.null(M))	M <- sum(ldscore[, 6] > maf)
 		
 		if(!is.null(wld)){
 			if(ncol(as.matrix(wld)) < 2)	stop("At least 2 columns should be provided!")
@@ -1332,7 +1404,7 @@ LDreg <- function(sumstat = NULL, ldscore = NULL, wld = NULL, maxz2 = 80, maf = 
 		}
 		indx <- apply(row_logi, 1, all); rm(row_logi); gc()
 		if(!all(indx)){
-			if(verbose)	cat("(Warning:", sum(!indx), "SNPs sharing same names between sumstat and ldscore don't have equal map information!)\n")
+			if(verbose)	cat("(Warning:", sum(!indx), "SNPs sharing same names between sumstat and ldscore don't have equal map information!\n")
 			ldscore <- ldscore[indx, ]
 			wld <- wld[indx, ]
 			sumstat <- sumstat[indx, ]
@@ -1364,12 +1436,12 @@ LDreg <- function(sumstat = NULL, ldscore = NULL, wld = NULL, maxz2 = 80, maf = 
 	if(is.matrix(sumstat) || is.data.frame(sumstat)){
 
 		#heritability estimation
-		est <- h2_est(sumstat = sumstat, ldscore = ldscore, wld = wld, maxz2 = maxz2, maf = maf, nblock = nblock, verbose = verbose)
+		est <- h2_est(sumstat = sumstat, ldscore = ldscore, wld = wld, M = M, axz2 = maxz2, maf = maf, nblock = nblock, verbose = verbose)
 	}else if(is.list(sumstat)){
 		if(length(sumstat) == 1){
 			
 			#heritability estimation
-			est <- h2_est(sumstat = sumstat, ldscore = ldscore, wld = wld, maxz2 = maxz2, maf = maf, nblock = nblock, verbose = verbose)
+			est <- h2_est(sumstat = sumstat, ldscore = ldscore, wld = wld, M = M, maxz2 = maxz2, maf = maf, nblock = nblock, verbose = verbose)
 		}else{
 			if(verbose)	cat("Bivariate LD regression on", length(sumstat), "traits\n")
 			est <- NULL
@@ -1388,7 +1460,7 @@ LDreg <- function(sumstat = NULL, ldscore = NULL, wld = NULL, maxz2 = 80, maf = 
 
 			# order ldscore by the positin on genome
 			ldscore <- ldscore[order(ldscore[, 2], ldscore[, 3]), ]
-			M <- sum(ldscore[, 6] > maf)
+			if(is.null(M))	M <- sum(ldscore[, 6] > maf)
 
 			if(!is.null(wld)){
 				mergedSNP <- intersect(ldscore[, 1], wld[, 1])

@@ -1,3 +1,7 @@
+#if !defined(ARMA_64BIT_WORD)
+#define ARMA_64BIT_WORD 1
+#endif
+
 #include "stats.h"
 #include "probar.h"
 #include <string.h>
@@ -746,95 +750,95 @@ SEXP SImpute_LD_norm_c(SEXP pBigMat, const Nullable<IntegerVector> index = R_Nil
 	}
 }
 
-template <typename T>
-SEXP SImpute_LD_sparse_c(XPtr<BigMatrix> pMat, const Nullable<IntegerVector> index = R_NilValue, const int chisq = 0, const double lambda = 0, const bool haps = false, const int threads=0, const bool verbose=true){
+// template <typename T>
+// SEXP SImpute_LD_sparse_c(XPtr<BigMatrix> pMat, const Nullable<IntegerVector> index = R_NilValue, const int chisq = 0, const double lambda = 0, const bool haps = false, const int threads=0, const bool verbose=true){
 
-	omp_setup(threads);
+// 	omp_setup(threads);
 
-	MatrixAccessor<T> genomat = MatrixAccessor<T>(*pMat);
+// 	MatrixAccessor<T> genomat = MatrixAccessor<T>(*pMat);
 
-	int m = pMat->ncol(), mc;
-	int ind = pMat->nrow();
-	bool sparse = false;
-	int i, j, k, gi, gj;
-	double p1 = 0.0, q1 = 0.0, m1 = 0.0, s1 = 0.0, p2 = 0.0, q2 = 0.0, m2 = 0.0, s2 = 0.0, p12 = 0.0, r = 0.0, x11 = 0.0, x12 = 0.0, x21 = 0.0, x22 = 0.0;
+// 	int m = pMat->ncol(), mc;
+// 	int ind = pMat->nrow();
+// 	bool sparse = false;
+// 	int i, j, k, gi, gj;
+// 	double p1 = 0.0, q1 = 0.0, m1 = 0.0, s1 = 0.0, p2 = 0.0, q2 = 0.0, m2 = 0.0, s2 = 0.0, p12 = 0.0, r = 0.0, x11 = 0.0, x12 = 0.0, x21 = 0.0, x22 = 0.0;
 	
-	MinimalProgressBar pb;
-	IntegerVector index_all = seq(0, m - 1), index_;
-	// NumericVector freq_all = freq(pMat, index_all, threads);
-	NumericVector mean_all, sd_all, sum_all;
-	if(!haps){
-		List Stat = BigStat(pMat, index_all, threads);
-		mean_all = Stat[0];
-		sd_all = Stat[1];
-		sum_all = Stat[2];
-	}
+// 	MinimalProgressBar pb;
+// 	IntegerVector index_all = seq(0, m - 1), index_;
+// 	// NumericVector freq_all = freq(pMat, index_all, threads);
+// 	NumericVector mean_all, sd_all, sum_all;
+// 	if(!haps){
+// 		List Stat = BigStat(pMat, index_all, threads);
+// 		mean_all = Stat[0];
+// 		sd_all = Stat[1];
+// 		sum_all = Stat[2];
+// 	}
 
-	if(chisq > 0)	sparse = true;
+// 	if(chisq > 0)	sparse = true;
 
-	Progress p(m, verbose, pb);
+// 	Progress p(m, verbose, pb);
 
-	if(index.isNotNull()){
-		index_ = as<IntegerVector>(index) - 1;
-		mc = index_.size();
-	}else{
-		mc = m;
-	}
+// 	if(index.isNotNull()){
+// 		index_ = as<IntegerVector>(index) - 1;
+// 		mc = index_.size();
+// 	}else{
+// 		mc = m;
+// 	}
 
-	std::vector<std::string> item;
-	List res(m * m);
+// 	std::vector<std::string> item;
+// 	List res(m * m);
 
-	#pragma omp parallel for schedule(dynamic) private(j, p1, m1, s1, s2, i, k, p12, p2, m2, r)
-	for (j = 0; j < m; j++){
-		// ldmat(j, j) = 1 + lambda;
-		p1 = sd_all[j];
-		m1 = mean_all[j];
-		s1 = sum_all[j];
-		if ( ! Progress::check_abort() ) {
-			p.increment();
+// 	#pragma omp parallel for schedule(dynamic) private(j, p1, m1, s1, s2, i, k, p12, p2, m2, r)
+// 	for (j = 0; j < m; j++){
+// 		// ldmat(j, j) = 1 + lambda;
+// 		p1 = sd_all[j];
+// 		m1 = mean_all[j];
+// 		s1 = sum_all[j];
+// 		if ( ! Progress::check_abort() ) {
+// 			p.increment();
 
-			for(i = j + 1; i < m; i++){
-				p12 = 0;
-				p2 = sd_all[i];
-				m2 = mean_all[i];
-				s2 = sum_all[i];
-				for(k = 0; k < ind; k++){
-					p12 += (genomat[i][k]) * (genomat[j][k]);
-				}
-				p12 -= s1 * m2 + s2 * m1 - ind * m1 * m2;
-				// cout << j << "-" << p1 << "-" << m1 << "-" << p2 << "-" << m2 <<"-" << p12 << endl;
-				r = p12 / (p1 * p2);
-				if(sparse){
-					if(r * r * ind < chisq)	r = 0.0;
-				}
-				if(r){
-					std::string elem;
-					elem = to_string(j) + " " + to_string(i) + " " + to_string(r);
-					// item.push_back(elem);
-					res[j * m + i] = elem;
-				}
-				// ldmat(j, i) = ldmat(i, j) = r;
-			}
-		}
-	}
-	return wrap(res);
-}
+// 			for(i = j + 1; i < m; i++){
+// 				p12 = 0;
+// 				p2 = sd_all[i];
+// 				m2 = mean_all[i];
+// 				s2 = sum_all[i];
+// 				for(k = 0; k < ind; k++){
+// 					p12 += (genomat[i][k]) * (genomat[j][k]);
+// 				}
+// 				p12 -= s1 * m2 + s2 * m1 - ind * m1 * m2;
+// 				// cout << j << "-" << p1 << "-" << m1 << "-" << p2 << "-" << m2 <<"-" << p12 << endl;
+// 				r = p12 / (p1 * p2);
+// 				if(sparse){
+// 					if(r * r * ind < chisq)	r = 0.0;
+// 				}
+// 				if(r){
+// 					std::string elem;
+// 					elem = to_string(j) + " " + to_string(i) + " " + to_string(r);
+// 					// item.push_back(elem);
+// 					res[j * m + i] = elem;
+// 				}
+// 				// ldmat(j, i) = ldmat(i, j) = r;
+// 			}
+// 		}
+// 	}
+// 	return wrap(res);
+// }
 
-// [[Rcpp::export]]
-SEXP SImpute_LD_sparse_c(SEXP pBigMat, const Nullable<IntegerVector> index = R_NilValue, const int chisq = 0, const double lambda = 0, const bool haps = false, const int threads=0, const bool verbose=true){
+// // [[Rcpp::export]]
+// SEXP SImpute_LD_sparse_c(SEXP pBigMat, const Nullable<IntegerVector> index = R_NilValue, const int chisq = 0, const double lambda = 0, const bool haps = false, const int threads=0, const bool verbose=true){
 
-	XPtr<BigMatrix> xpMat(pBigMat);
+// 	XPtr<BigMatrix> xpMat(pBigMat);
 
-	switch(xpMat->matrix_type()){
-	case 1:
-		return SImpute_LD_sparse_c<char>(xpMat, index, chisq, lambda, haps, threads, verbose);
-	case 2:
-		return SImpute_LD_sparse_c<short>(xpMat, index, chisq, lambda, haps, threads, verbose);
-	case 4:
-		return SImpute_LD_sparse_c<int>(xpMat, index, chisq, lambda, haps, threads, verbose);
-	case 8:
-		return SImpute_LD_sparse_c<double>(xpMat, index, chisq, lambda, haps, threads, verbose);
-	default:
-		throw Rcpp::exception("unknown type detected for big.matrix object!");
-	}
-}
+// 	switch(xpMat->matrix_type()){
+// 	case 1:
+// 		return SImpute_LD_sparse_c<char>(xpMat, index, chisq, lambda, haps, threads, verbose);
+// 	case 2:
+// 		return SImpute_LD_sparse_c<short>(xpMat, index, chisq, lambda, haps, threads, verbose);
+// 	case 4:
+// 		return SImpute_LD_sparse_c<int>(xpMat, index, chisq, lambda, haps, threads, verbose);
+// 	case 8:
+// 		return SImpute_LD_sparse_c<double>(xpMat, index, chisq, lambda, haps, threads, verbose);
+// 	default:
+// 		throw Rcpp::exception("unknown type detected for big.matrix object!");
+// 	}
+// }

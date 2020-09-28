@@ -4,8 +4,16 @@
 \alias{LDcal}
 \title{LD calculation}
 \usage{
-LDcal(geno = NULL, index = NULL, threads = 1, lambda = 0,
-  chisq = 0, correlation = TRUE, out = NULL, verbose = TRUE)
+LDcal(
+  geno = NULL,
+  index = NULL,
+  threads = 1,
+  lambda = 0,
+  chisq = 0,
+  correlation = TRUE,
+  out = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{geno}{big.matrix (n * m), genotype}
@@ -29,7 +37,7 @@ To calculate LD for all pairs of SNPs on given genome
 }
 \examples{
 gwas_bfile_path <- system.file("extdata", "gwas_geno", package = "SumTool")
-data <- read_plink(bfile=gwas_bfile_path, threads=1, verbose=FALSE)
+data <- read_plink(bfile=gwas_bfile_path, threads=1, verbose=FALSE, backingpath=tempdir())
 geno <- data$geno
 ld <- LDcal(geno=geno, threads=1, verbose=FALSE)
 }

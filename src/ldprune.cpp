@@ -15,7 +15,7 @@ arma::uvec LDprune_c(XPtr<BigMatrix> pMat, const IntegerVector index, const doub
 	// MinimalProgressBar pb;
 
 	IntegerVector index_ = index - 1;
-	arma::vec freq_all = as<arma::vec>(freq(pMat, index_, threads));
+	arma::vec freq_all = as<arma::vec>(freq_s(pMat, index_, threads));
 	IntegerVector freq_sort_indx = as<Rcpp::IntegerVector>(wrap(sort_index(freq_all, "descend")));
 	index_ = index_[freq_sort_indx];
 	List Stat = BigStat(pMat, index_, threads);

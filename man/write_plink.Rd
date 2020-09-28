@@ -4,8 +4,13 @@
 \alias{write_plink}
 \title{Data writing}
 \usage{
-write_plink(geno = NULL, map = NULL, out = "plink", verbose = TRUE,
-  threads = 1)
+write_plink(
+  geno = NULL,
+  map = NULL,
+  out = "plink",
+  verbose = TRUE,
+  threads = 1
+)
 }
 \arguments{
 \item{geno}{big.matrix, numeric matrix stored in big.matrix format.}
@@ -24,7 +29,7 @@ To write bigmemory (0, 1, 2) data into Plink binary format
 \examples{
 # reading data
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-data <- read_plink(bfile=ref_bfile_path, threads=1, verbose=FALSE)
+data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
 geno <- data$geno
 map <- data$map
 

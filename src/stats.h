@@ -17,8 +17,10 @@ using namespace std;
 using namespace Rcpp;
 using namespace arma;
 
-NumericVector freq_hap(SEXP pBigMat, const IntegerVector index_, const int threads = 0);
-NumericVector freq(SEXP pBigMat, const IntegerVector index_, const int threads = 0);
+NumericVector freq_snp(SEXP pBigMat, const IntegerVector index_, const int threads = 0);
+double freq_hap(SEXP pBigMat, const int indx_1, const int indx_2);
+NumericVector freq_s(SEXP pBigMat, const IntegerVector index_, const int threads = 0);
+double freq_h(SEXP pBigMat, const int indx_1, const int indx_2);
 SEXP BigStat(SEXP pBigMat, const IntegerVector index_, const int threads = 0);
 IntegerVector which_c(const NumericVector x, const double value, const int c = 1);
 #endif
