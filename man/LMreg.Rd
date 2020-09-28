@@ -24,7 +24,7 @@ To do association using Generalized Linear Model
 }
 \examples{
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-data <- read_plink(bfile=ref_bfile_path, backingpath=tempdir(), threads=1)
+data <- read_binary(bfile=ref_bfile_path, out=tempfile(), threads=1)
 geno <- data$geno
 map <- data$map
 y <- data$pheno[,1]

@@ -39,7 +39,7 @@ To estimate LD score for each SNPs
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 
 # load data
-data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
+data <- read_binary(bfile=ref_bfile_path, threads=1, out=tempfile(), verbose=FALSE)
 geno <- data$geno
 map <- data$map
 ldscore <- LDscore(geno = geno, map = map, w = 100000, b=12500, threads = 1, verbose=FALSE)

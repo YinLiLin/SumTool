@@ -9,9 +9,7 @@ read_vcf(
   maxLine = 1000,
   impute = TRUE,
   additive = TRUE,
-  backingpath = getwd(),
-  descriptorfile = NULL,
-  backingfile = NULL,
+  out = NULL,
   verbose = TRUE,
   threads = 1
 )
@@ -25,11 +23,7 @@ read_vcf(
 
 \item{additive}{logical, whether to code the genotype into 0, 1, 2; otherwise, the genotype will be coded into 11, 12, 21, 22, which can be used for summary data imputation.}
 
-\item{backingpath}{the path to the directory containing the file backing cache.}
-
-\item{descriptorfile}{the name of the file to hold the backingfile description, for subsequent use with ‘attach.big.matrix’; if ‘NULL’, the ‘backingfile’ is used as the root part of the descriptor file name.  The descriptor file is placed in the same directory as the backing files.}
-
-\item{backingfile}{the root name for the file(s) for the cache.}
+\item{out}{character, path and prefix of output file}
 
 \item{verbose}{logical, whether to print the log information}
 
@@ -40,7 +34,7 @@ To read VCF format data into bigmemory {(0, 1, 2) or (11, 12, 21, 22)} format
 }
 \examples{
 ref_vfile_path <- system.file("extdata", "ref_geno.vcf", package = "SumTool")
-data <- read_vcf(vfile=ref_vfile_path, backingpath=tempdir(), threads=1, verbose=FALSE)
+data <- read_vcf(vfile=ref_vfile_path, out=tempfile(), threads=1, verbose=FALSE)
 geno <- data$geno
 map <- data$map
 }

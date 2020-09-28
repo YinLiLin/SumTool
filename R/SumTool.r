@@ -36,29 +36,25 @@ function(x)
 #' @param maxLine number, set the number of lines to handle at a time, bigger lines require more memory.
 #' @param impute logical, whether to impute missing values in genotype.
 #' @param additive logical, whether to code the genotype into 0, 1, 2; otherwise, the genotype will be coded into 11, 12, 22, which can be used for summary data imputation.
-#' @param backingpath the path to the directory containing the file backing cache.
-#' @param descriptorfile the name of the file to hold the backingfile description, for subsequent use with ‘attach.big.matrix’; if ‘NULL’, the ‘backingfile’ is used as the root part of the descriptor file name.  The descriptor file is placed in the same directory as the backing files.
-#' @param backingfile the root name for the file(s) for the cache.
+#' @param out character, path and prefix of output file
 #' @param verbose logical, whether to print the log information
 #' @param threads number, the number of used threads for parallel process
 
 #' @examples
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-#' data <- read_plink(bfile=ref_bfile_path, backingpath=tempdir(), threads=1, verbose=FALSE)
+#' data <- read_binary(bfile=ref_bfile_path, out=tempfile(), threads=1, verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 
 #' @export
 
-read_plink <- 
+read_binary <- 
 function(
 	bfile = "", 
 	maxLine = 1000,
 	impute = TRUE,
 	additive = TRUE, 
-	backingpath = getwd(),
-	descriptorfile = NULL,
-	backingfile = NULL,
+	out = NULL,
 	verbose = TRUE,
 	threads = 1
 ){
@@ -72,27 +68,32 @@ function(
 	if(verbose)	cat("Number of individuals: ", n , "\n", sep="")
 	if(verbose)	cat("Reading...\n")
 
-	if(is.null(backingfile) & is.null(backingfile)){
-		backingfile <- paste0(bfile,".bin")
-		descriptorfile <- paste0(bfile,".desc")
+	if(is.null(out)){
+		backingfile <- paste0(basename(bfile),".bin")
+		descriptorfile <- paste0(basename(bfile),".desc")
+		backingpath <- "."
+	}else{
+		backingfile <- paste0(basename(out),".bin")
+		descriptorfile <- paste0(basename(out),".desc")
+		backingpath <- dirname(out)
 	}
-	if(!is.null(backingfile))	backingfile <- basename(backingfile)
-	if(!is.null(descriptorfile))	descriptorfile <- basename(descriptorfile)
-	if(!is.null(backingfile) & is.null(descriptorfile))
-		stop("descriptorfile shoud be assigned.")
-	if(is.null(backingfile) & !is.null(descriptorfile))
-		stop("backingfile shoud be assigned.")
+	# if(!is.null(backingfile))	backingfile <- basename(backingfile)
+	# if(!is.null(descriptorfile))	descriptorfile <- basename(descriptorfile)
+	# if(!is.null(backingfile) & is.null(descriptorfile))
+	# 	stop("descriptorfile shoud be assigned.")
+	# if(is.null(backingfile) & !is.null(descriptorfile))
+	# 	stop("backingfile shoud be assigned.")
 
-	if(!is.null(descriptorfile)){
-		map_file <- unlist(strsplit(descriptorfile, "", fixed = TRUE))
-		sep_index <- which(map_file == ".")
-		if(length(sep_index)){
-			map_file <- paste0(map_file[1 : (sep_index[length(sep_index)] - 1)], collapse="")
-		}else{
-			map_file <- paste0(map_file, collapse="")
-		}
-		if(!is.null(backingpath))	map_file <- paste0(backingpath, "/", map_file)
+	# if(!is.null(descriptorfile)){
+	map_file <- unlist(strsplit(descriptorfile, "", fixed = TRUE))
+	sep_index <- which(map_file == ".")
+	if(length(sep_index)){
+		map_file <- paste0(map_file[1 : (sep_index[length(sep_index)] - 1)], collapse="")
+	}else{
+		map_file <- paste0(map_file, collapse="")
 	}
+	if(!is.null(backingpath))	map_file <- paste0(backingpath, "/", map_file)
+	# }
 	map <- as.data.frame(rMap_c(paste0(bfile, ".bim"), out = map_file), stringsAsFactors=FALSE)
 	map$Pos <- as.numeric(map$Pos)
 	pheno <- read.table(paste0(bfile, ".fam"), header=FALSE)[, -c(1:5), drop=FALSE]
@@ -120,15 +121,13 @@ function(
 #' @param maxLine number, set the number of lines to handle at a time, bigger lines require more memory.
 #' @param impute logical, whether to impute missing values in genotype.
 #' @param additive logical, whether to code the genotype into 0, 1, 2; otherwise, the genotype will be coded into 11, 12, 21, 22, which can be used for summary data imputation.
-#' @param backingpath the path to the directory containing the file backing cache.
-#' @param descriptorfile the name of the file to hold the backingfile description, for subsequent use with ‘attach.big.matrix’; if ‘NULL’, the ‘backingfile’ is used as the root part of the descriptor file name.  The descriptor file is placed in the same directory as the backing files.
-#' @param backingfile the root name for the file(s) for the cache.
+#' @param out character, path and prefix of output file
 #' @param verbose logical, whether to print the log information
 #' @param threads number, the number of used threads for parallel process
 
 #' @examples
 #' ref_vfile_path <- system.file("extdata", "ref_geno.vcf", package = "SumTool")
-#' data <- read_vcf(vfile=ref_vfile_path, backingpath=tempdir(), threads=1, verbose=FALSE)
+#' data <- read_vcf(vfile=ref_vfile_path, out=tempfile(), threads=1, verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 
@@ -140,9 +139,7 @@ function(
 	maxLine = 1000,
 	impute = TRUE,
 	additive = TRUE, 
-	backingpath = getwd(),
-	descriptorfile = NULL,
-	backingfile = NULL,
+	out = NULL, 
 	verbose = TRUE,
 	threads = 1
 ){
@@ -157,27 +154,34 @@ function(
 	if(verbose)	cat("Number of individuals: ", n , "\n", sep="")
 	if(verbose)	cat("Reading...\n")
 
-	if(is.null(backingfile) & is.null(backingfile)){
-		backingfile <- paste0(sub('....$','', vfile),".bin")
-		descriptorfile <- paste0(sub('....$','', vfile),".desc")
+	if(is.null(out)){
+		prefix <- sub('....$','', basename(vfile))
+		backingfile <- paste0(prefix,".bin")
+		descriptorfile <- paste0(prefix,".desc")
+		backingpath <- "."
+	}else{
+		backingfile <- paste0(basename(out),".bin")
+		descriptorfile <- paste0(basename(out),".desc")
+		backingpath <- dirname(out)
 	}
-	if(!is.null(backingfile))	backingfile <- basename(backingfile)
-	if(!is.null(descriptorfile))	descriptorfile <- basename(descriptorfile)
-	if(!is.null(backingfile) & is.null(descriptorfile))
-		stop("descriptorfile shoud be assigned.")
-	if(is.null(backingfile) & !is.null(descriptorfile))
-		stop("backingfile shoud be assigned.")
 
-	if(!is.null(descriptorfile)){
-		map_file <- unlist(strsplit(descriptorfile, "", fixed = TRUE))
-		sep_index <- which(map_file == ".")
-		if(length(sep_index)){
-			map_file <- paste0(map_file[1 : (sep_index[length(sep_index)] - 1)], collapse="")
-		}else{
-			map_file <- paste0(map_file, collapse="")
-		}
-		if(!is.null(backingpath))	map_file <- paste0(backingpath, "/", map_file)
+	# if(!is.null(backingfile))	backingfile <- basename(backingfile)
+	# if(!is.null(descriptorfile))	descriptorfile <- basename(descriptorfile)
+	# if(!is.null(backingfile) & is.null(descriptorfile))
+	# 	stop("descriptorfile shoud be assigned.")
+	# if(is.null(backingfile) & !is.null(descriptorfile))
+	# 	stop("backingfile shoud be assigned.")
+
+	# if(!is.null(descriptorfile)){
+	map_file <- unlist(strsplit(descriptorfile, "", fixed = TRUE))
+	sep_index <- which(map_file == ".")
+	if(length(sep_index)){
+		map_file <- paste0(map_file[1 : (sep_index[length(sep_index)] - 1)], collapse="")
+	}else{
+		map_file <- paste0(map_file, collapse="")
 	}
+	if(!is.null(backingpath))	map_file <- paste0(backingpath, "/", map_file)
+	# }
 	geno <- bigmemory::big.matrix(
 		nrow = n,
 		ncol = m,
@@ -209,16 +213,16 @@ function(
 #' @examples
 #' # reading data
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-#' data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
+#' data <- read_binary(bfile=ref_bfile_path, threads=1, out=tempfile(), verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 #'
 #' # writing data
-#' # write_plink(geno=geno, map=map, out="./test", threads=1, verbose=FALSE)
+#' # write_binary(geno=geno, map=map, out="./test", threads=1, verbose=FALSE)
 
 #' @export
 
-write_plink <- 
+write_binary <- 
 function(
 	geno = NULL, 
 	map = NULL,
@@ -272,7 +276,7 @@ function(
 #' typed_z_path <- system.file("extdata", "typed.zscore", package = "SumTool")
 #'
 #' # reading data
-#' data <- read_bfile(bfile=ref_file_path, additive=FALSE, backingpath=tempdir(), 
+#' data <- read_binary(bfile=ref_file_path, additive=FALSE, out=tempfile(), 
 #' 	threads=1, verbose=FALSE)
 #' ref.geno <- data$geno
 #' ref.map <- data$map
@@ -284,7 +288,7 @@ function(
 #' #--------------SImpute-LD---------------#
 #'
 #' gwas_file_path <- system.file("extdata", "gwas_geno", package = "SumTool")
-#' gwas <- read_bfile(bfile=gwas_file_path, additive=FALSE, backingpath=tempdir(), 
+#' gwas <- read_binary(bfile=gwas_file_path, additive=FALSE, out=tempfile(), 
 #' 	threads=1, verbose=FALSE)
 #' typed.geno <- gwas$geno
 #' typed.map <- gwas$map
@@ -492,7 +496,7 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 #' typed_b_path <- system.file("extdata", "typed.beta", package = "SumTool")
 #'
 #' # reading data
-#' data <- read_bfile(bfile=ref_file_path, additive=FALSE, backingpath=tempdir(), 
+#' data <- read_binary(bfile=ref_file_path, additive=FALSE, out=tempfile(), 
 #' 	threads=1, verbose=FALSE)
 #' ref.geno <- data$geno
 #' ref.map <- data$map
@@ -504,7 +508,7 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 #' #--------------SImpute-LD---------------#
 #'
 #' gwas_file_path <- system.file("extdata", "gwas_geno", package = "SumTool")
-#' gwas <- read_bfile(bfile=gwas_file_path,  additive=FALSE, backingpath=tempdir(), 
+#' gwas <- read_binary(bfile=gwas_file_path,  additive=FALSE, out=tempfile(), 
 #' 	threads=1, verbose=FALSE)
 #' typed.geno <- gwas$geno
 #' typed.map <- gwas$map
@@ -729,7 +733,7 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 
 #' @examples
 #' gwas_bfile_path <- system.file("extdata", "gwas_geno", package = "SumTool")
-#' data <- read_plink(bfile=gwas_bfile_path, threads=1, verbose=FALSE, backingpath=tempdir())
+#' data <- read_binary(bfile=gwas_bfile_path, threads=1, verbose=FALSE, out=tempfile())
 #' geno <- data$geno
 #' ld <- LDcal(geno=geno, threads=1, verbose=FALSE)
 
@@ -793,7 +797,7 @@ LDcal <- function(geno = NULL, index = NULL, threads = 1, lambda = 0, chisq = 0,
 
 #' @examples
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-#' data <- read_plink(bfile=ref_bfile_path, backingpath=tempdir(), threads=1)
+#' data <- read_binary(bfile=ref_bfile_path, out=tempfile(), threads=1)
 #' geno <- data$geno
 #' map <- data$map
 #' y <- data$pheno[,1]
@@ -862,7 +866,7 @@ LMreg <- function(y, geno = NULL, map = NULL, X = NULL, threads = 1, verbose = T
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 #' 
 #' # load data
-#' data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
+#' data <- read_binary(bfile=ref_bfile_path, threads=1, out=tempfile(), verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 #' ldscore <- LDscore(geno = geno, map = map, w = 100000, b=12500, threads = 1, verbose=FALSE)
@@ -975,7 +979,7 @@ LDscore <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2 = TRUE,
 #' ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 #' 
 #' # load data
-#' data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
+#' data <- read_binary(bfile=ref_bfile_path, threads=1, out=tempfile(), verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 #' snp <- LDprune(geno = geno, map = map, w = 100000, b=50000, threads = 1, verbose=FALSE)
@@ -1089,7 +1093,7 @@ LDprune <- function(geno = NULL, map = NULL, w = 1000000, b = 500000, r2.cutoff 
 #' p_path <- system.file("extdata", "P.txt", package = "SumTool")
 
 #' # load data
-#' data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
+#' data <- read_binary(bfile=ref_bfile_path, threads=1, out=tempfile(), verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 #' pdata <- read.table(p_path, header = TRUE)
@@ -1211,7 +1215,7 @@ LDclump <- function(geno = NULL, map = NULL, p = NULL, w = 1000000, r2.cutoff = 
 #' 
 #' # load data
 #' sumstat <- read.table(sumstat_path, header=TRUE)
-#' data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
+#' data <- read_binary(bfile=ref_bfile_path, threads=1, out=tempfile(), verbose=FALSE)
 #' geno <- data$geno
 #' map <- data$map
 #' h2 <- 0.5
@@ -1436,7 +1440,7 @@ LDreg <- function(sumstat = NULL, ldscore = NULL, wld = NULL, M = NULL, maxz2 = 
 	if(is.matrix(sumstat) || is.data.frame(sumstat)){
 
 		#heritability estimation
-		est <- h2_est(sumstat = sumstat, ldscore = ldscore, wld = wld, M = M, axz2 = maxz2, maf = maf, nblock = nblock, verbose = verbose)
+		est <- h2_est(sumstat = sumstat, ldscore = ldscore, wld = wld, M = M, maxz2 = maxz2, maf = maf, nblock = nblock, verbose = verbose)
 	}else if(is.list(sumstat)){
 		if(length(sumstat) == 1){
 			

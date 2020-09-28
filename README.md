@@ -39,11 +39,11 @@ After installed successfully, type ```library(SumTool)``` to use, then type ```l
 
 Genotype Converting
 -----
-With the developing of advaced sequence technologies, the unprecedentedly increased markers across genome make a big challenge in relevant genetic analysis. Loading the genotype into memory directly is highly limited by the computation resources, which becomes the bottleneck of the most of softwares or pipelines. Here we provided a function ```read_plink``` developed by aid of bigmemory package to construct memory-mapped files ('big.matrix') on disk from plink binary files. Instead of reading all genotype data into RAM, it greatly reduce memory cost without significantly increase of computation time. Moreover, this data transformation process is only required at the first time, and no matter how big the data is, it can be connected with RAM within seconds at the next time.
+With the developing of advaced sequence technologies, the unprecedentedly increased markers across genome make a big challenge in relevant genetic analysis. Loading the genotype into memory directly is highly limited by the computation resources, which becomes the bottleneck of the most of softwares or pipelines. Here we provided two functions ```read_binary, read_vcf``` developed by aid of bigmemory package to construct memory-mapped files ('big.matrix') on disk from plink binary and VCF files. Instead of reading all genotype data into RAM, it greatly reduce memory cost without significantly increase of computation time. Moreover, this data transformation process is only required at the first time, and no matter how big the data is, it can be connected with RAM within seconds at the next time.
 ```r
 # plink binary file
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-data <- read_plink(bfile=ref_bfile_path, additive=TRUE, threads=1)
+data <- read_binary(bfile=ref_bfile_path, additive=TRUE, threads=1)
 # bfile: the prefix of binary files
 
 # or load VCF file
@@ -54,9 +54,9 @@ data <- read_vcf(vfile=ref_vfile_path, additive=TRUE, threads=1)
 ref.geno <- data$geno
 ref.map <- data$map
 ```
-By default, the memory-mapped files are directed into work directory, users could redirect to new path as following:
+Missing genotype will be replaced by the major genotype of each allele. By default, the memory-mapped files are directed into work directory, users could redirect to new path as following:
 ```r
-data <- read_plink(bfile=ref_bfile_path, backingpath="./", descriptorfile="test.desc", backingfile="test.bin", threads=1)
+data <- read_binary(bfile=ref_bfile_path, out="./test", threads=1)
 
 # directly use for the next time
 ref.geno <- attach.big.matrix("./test.desc")
@@ -108,7 +108,7 @@ Linear Model
 -----
 ```r
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
-data <- read_plink(bfile=ref_bfile_path, threads=1)
+data <- read_binary(bfile=ref_bfile_path, threads=1)
 geno <- data$geno
 map <- data$map
 y <- data$pheno[,1]
@@ -117,7 +117,7 @@ gwas <- LMreg(y=y, geno=geno, map=map, threads=1, verbose=FALSE)
 
 Impute Zscore
 -----
-For Zscore imputation, at least 6 columns should be provided in same order with the example for typed SNPs. No need to separate genome into chromosomes. The reference panel can be loaded from both plink binary file (read_plink) or VCF file (read_vcf), we recommend using phased VCF file. Please note that "(..., [additive=FALSE]())" should be added when reading either plink file or VCF file.
+For Zscore imputation, at least 6 columns should be provided in same order with the example for typed SNPs. No need to separate genome into chromosomes. The reference panel can be loaded from both plink binary file (read_binary) or VCF file (read_vcf), we recommend using phased VCF file. Please note that "(..., [additive=FALSE]())" should be added when reading either plink file or VCF file.
 ```r
 # get the path of attached example data on SumTool
 ref_file_path <- system.file("extdata", "ref_geno.vcf", package = "SumTool")
@@ -143,7 +143,7 @@ xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, w=1000000, thr
 If the individual genotype of summary statistics is available, the imputation accuracy can be improved by using the LD matrix derived from individual genotype rather than reference panel for typed SNPs. 
 ```r
 gwas_bfile_path <- system.file("extdata", "gwas_geno", package = "SumTool")
-gwas <- read_plink(bfile=gwas_bfile_path, additive=FALSE, threads=1)
+gwas <- read_binary(bfile=gwas_bfile_path, additive=FALSE, threads=1)
 typed.geno <- gwas$geno
 typed.map <- gwas$map
 # NOTE: the order of SNPs in 'typed.geno' should be consistent with the order in 'typed_z'.
@@ -153,7 +153,7 @@ xx <- SImputeZ(ref.geno=ref.geno, ref.map=ref.map, typed=typed_z, typed.geno=typ
 
 Impute Marginal Effect
 -----
-For BETA and SE imputation, limited 8 columns should be provided in same order with the example for typed SNPs. No need to separate genome into chromosomes. The reference panel can be loaded from both plink binary file (read_plink) or VCF file (read_vcf), we recommend using phased VCF file. Please note that "(..., [additive=FALSE]())" should be added when reading either plink file or VCF file.<br>
+For BETA and SE imputation, limited 8 columns should be provided in same order with the example for typed SNPs. No need to separate genome into chromosomes. The reference panel can be loaded from both plink binary file (read_binary) or VCF file (read_vcf), we recommend using phased VCF file. Please note that "(..., [additive=FALSE]())" should be added when reading either plink file or VCF file.<br>
 ***NOTE***: It is not supported to impute multiple traits at a time.
 ```r
 # get the path of attached example data on SumTool
@@ -321,7 +321,7 @@ head(sumstat)
 4  rs3131969   1 754182  A  G -0.04744 0.5306   100
 5  rs1048488   1 760912  C  T -0.07650 0.5416   100
 6 rs12562034   1 768448  G  A -0.12360 0.5500   100
-data <- read_plink(bfile=ref_bfile_path, threads=1)
+data <- read_binary(bfile=ref_bfile_path, threads=1)
 geno <- data$geno
 map <- data$map
 h2 <- 0.5

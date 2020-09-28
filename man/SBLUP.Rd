@@ -38,7 +38,7 @@ ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 
 # load data
 sumstat <- read.table(sumstat_path, header=TRUE)
-data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
+data <- read_binary(bfile=ref_bfile_path, threads=1, out=tempfile(), verbose=FALSE)
 geno <- data$geno
 map <- data$map
 h2 <- 0.5

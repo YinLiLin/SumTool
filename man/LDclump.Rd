@@ -39,7 +39,7 @@ To remove high correlated SNPs on base of r2 and p-values
 ref_bfile_path <- system.file("extdata", "ref_geno", package = "SumTool")
 p_path <- system.file("extdata", "P.txt", package = "SumTool")
 # load data
-data <- read_plink(bfile=ref_bfile_path, threads=1, backingpath=tempdir(), verbose=FALSE)
+data <- read_binary(bfile=ref_bfile_path, threads=1, out=tempfile(), verbose=FALSE)
 geno <- data$geno
 map <- data$map
 pdata <- read.table(p_path, header = TRUE)

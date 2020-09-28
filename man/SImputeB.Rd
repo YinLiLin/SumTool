@@ -49,7 +49,7 @@ ref_file_path <- system.file("extdata", "ref_geno", package = "SumTool")
 typed_b_path <- system.file("extdata", "typed.beta", package = "SumTool")
 
 # reading data
-data <- read_bfile(bfile=ref_file_path, additive=FALSE, backingpath=tempdir(), 
+data <- read_binary(bfile=ref_file_path, additive=FALSE, out=tempfile(), 
 	threads=1, verbose=FALSE)
 ref.geno <- data$geno
 ref.map <- data$map
@@ -61,7 +61,7 @@ xx <- SImputeB(ref.geno=ref.geno, ref.map=ref.map, typed=typed_b, threads=1, ver
 #--------------SImpute-LD---------------#
 
 gwas_file_path <- system.file("extdata", "gwas_geno", package = "SumTool")
-gwas <- read_bfile(bfile=gwas_file_path,  additive=FALSE, backingpath=tempdir(), 
+gwas <- read_binary(bfile=gwas_file_path,  additive=FALSE, out=tempfile(), 
 	threads=1, verbose=FALSE)
 typed.geno <- gwas$geno
 typed.map <- gwas$map
