@@ -170,6 +170,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// LDcor_c
+arma::mat LDcor_c(SEXP pBigMat1, SEXP pBigMat2, const IntegerVector index1, const IntegerVector index2, const int threads);
+RcppExport SEXP _SumTool_LDcor_c(SEXP pBigMat1SEXP, SEXP pBigMat2SEXP, SEXP index1SEXP, SEXP index2SEXP, SEXP threadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type pBigMat1(pBigMat1SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type pBigMat2(pBigMat2SEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type index1(index1SEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type index2(index2SEXP);
+    Rcpp::traits::input_parameter< const int >::type threads(threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(LDcor_c(pBigMat1, pBigMat2, index1, index2, threads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // LDprune_c
 arma::uvec LDprune_c(SEXP pBigMat, const IntegerVector index, const double r2_cutoff, const int threads, const bool verbose);
 RcppExport SEXP _SumTool_LDprune_c(SEXP pBigMatSEXP, SEXP indexSEXP, SEXP r2_cutoffSEXP, SEXP threadsSEXP, SEXP verboseSEXP) {
@@ -401,6 +416,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_SumTool_rVCF_c", (DL_FUNC) &_SumTool_rVCF_c, 8},
     {"_SumTool_SImpute_LD_bigm_c", (DL_FUNC) &_SumTool_SImpute_LD_bigm_c, 8},
     {"_SumTool_SImpute_LD_norm_c", (DL_FUNC) &_SumTool_SImpute_LD_norm_c, 7},
+    {"_SumTool_LDcor_c", (DL_FUNC) &_SumTool_LDcor_c, 5},
     {"_SumTool_LDprune_c", (DL_FUNC) &_SumTool_LDprune_c, 5},
     {"_SumTool_LDclump_c", (DL_FUNC) &_SumTool_LDclump_c, 6},
     {"_SumTool_ldreg_h2", (DL_FUNC) &_SumTool_ldreg_h2, 8},

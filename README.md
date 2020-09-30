@@ -17,6 +17,7 @@ Features
   - [Linkage disequilibrium matrix](#linkage-disequilibrium)
   - [Linkage disequilibrium score](#ld-score)
   - [Linkage disequilibrium pruning](#ld-pruning)/[clumping](#ld-clumping)
+  - [Linkage disequilibrium comparison](#ld-comparison)
 - Association
   - [Linear Model](#linear-model) 
 - Imputation
@@ -102,6 +103,21 @@ head(pdata)
 4 rs144762171 0.4167849
 5 rs151276478 0.3716551
 snp <- LDclump(geno = ref.geno, map = ref.map, p = pdata, p.cutoff = 1, r2.cutoff = 0.25, w = 100000, threads = 1)
+```
+
+LD Comparison
+-----
+To compare the LD structure difference between two populations, the values of the column named "r" in output dataframe are more closer to 1, representing the SNPs match better for those two populations. We recommend deleting SNPs with r < 0.95 prior to downstream analysis.
+```r
+ref_file_path <- system.file("extdata", "ref_geno", package = "SumTool")
+gwas_file_path <- system.file("extdata", "gwas_geno", package = "SumTool")
+data1 <- read_binary(bfile=ref_file_path, threads=1, verbose=FALSE, out=tempfile())
+ref.geno <- data1$geno
+ref.map <- data1$map
+data2 <- read_binary(bfile=gwas_file_path, threads=1, verbose=FALSE, out=tempfile())
+gwas.geno <- data2$geno
+gwas.map <- data2$map
+ldcor <- LDcor(geno1=ref.geno, map1=ref.map, geno2=gwas.geno, map2=gwas.map, threads=10, verbose=TRUE)
 ```
 
 Linear Model

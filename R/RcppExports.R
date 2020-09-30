@@ -65,6 +65,10 @@ SImpute_LD_norm_c <- function(pBigMat, index = NULL, chisq = 0L, lambda = 0, hap
     .Call(`_SumTool_SImpute_LD_norm_c`, pBigMat, index, chisq, lambda, haps, threads, verbose)
 }
 
+LDcor_c <- function(pBigMat1, pBigMat2, index1, index2, threads = 0L) {
+    .Call(`_SumTool_LDcor_c`, pBigMat1, pBigMat2, index1, index2, threads)
+}
+
 LDprune_c <- function(pBigMat, index, r2_cutoff = 0.2, threads = 0L, verbose = TRUE) {
     .Call(`_SumTool_LDprune_c`, pBigMat, index, r2_cutoff, threads, verbose)
 }

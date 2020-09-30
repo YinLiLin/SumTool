@@ -784,6 +784,126 @@ LDcal <- function(geno = NULL, index = NULL, threads = 1, lambda = 0, chisq = 0,
 	return(bigmat)
 }
 
+#' LD correlation
+#'
+#' To compare the LD structure between two populations
+#'
+#' @param geno1 big.matrix (n1 * m1), genotype
+#' @param map1 data.frame, the genomic information of SNPs. The columns should be in the order of c("SNP", "Chr", "Pos", "A1", "A2")
+#' @param geno2 big.matrix (n2 * m2), genotype
+#' @param map2 data.frame, the genomic information of SNPs. The columns should be in the order of c("SNP", "Chr", "Pos", "A1", "A2")
+#' @param w int, size of windows in bp. Default is 1e6
+#' @param threads number, the number of used threads for parallel process
+#' @param verbose logical, whether to print the log information
+
+#' @examples
+#' ref_file_path <- system.file("extdata", "ref_geno", package = "SumTool")
+#' gwas_file_path <- system.file("extdata", "gwas_geno", package = "SumTool")
+#' data1 <- read_binary(bfile=ref_file_path, threads=1, verbose=FALSE, out=tempfile())
+#' ref.geno <- data1$geno
+#' ref.map <- data1$map
+#' data2 <- read_binary(bfile=gwas_file_path, threads=1, verbose=FALSE, out=tempfile())
+#' gwas.geno <- data2$geno
+#' gwas.map <- data2$map
+#' ldcor <- LDcor(geno1=ref.geno, map1=ref.map, geno2=gwas.geno, map2=gwas.map, threads=10, verbose=TRUE)
+
+#' @export
+
+LDcor <- function(geno1 = NULL, map1 = NULL, geno2 = NULL, map2 = NULL, w = 1000000, threads = 1, verbose = TRUE)
+{
+	if(verbose)	version.info()
+	t1 <- as.numeric(Sys.time())
+	
+	if(verbose)	cat("Analysis started:", as.character(Sys.time()), "\n")
+	if(is.null(geno1))	stop("Please provide geno1!")
+	if(!is.big.matrix(geno1))	stop("geno1 should be in 'big.matrix' format!")
+	if(is.null(map1))	stop("Please provide map1!")
+	if(is.null(geno2))	stop("Please provide geno2!")
+	if(!is.big.matrix(geno2))	stop("geno2 should be in 'big.matrix' format!")
+	if(is.null(map2))	stop("Please provide map2!")
+	if(nrow(map1) != ncol(geno1))	stop("Number of SNPs not equals between geno1 and map1.")
+	if(nrow(map2) != ncol(geno2))	stop("Number of SNPs not equals between geno2 and map2.")
+	if(!all((geno1[, 1]) <= 2))	stop("genotype should be coded as 0 1 2 in geno1!")
+	if(!all((geno2[, 1]) <= 2))	stop("genotype should be coded as 0 1 2 in geno2!")
+	if(any(duplicated(map1[, 1])))	stop("duplicated SNP names exist in map1.")
+	if(any(duplicated(map2[, 1])))	stop("duplicated SNP names exist in map2.")
+	if(ncol(map1) != 5)	stop("Only 5 columns limited for map1! (snp, chr, pos, a1, a2)")
+	if(ncol(map2) != 5)	stop("Only 5 columns limited for map2! (snp, chr, pos, a1, a2)")
+	if(!is.numeric(map1[, 3]))	stop("Physical position in map1 should be numeric defined!")
+	if(!is.numeric(map2[, 3]))	stop("Physical position in map2 should be numeric defined!")
+	for(i in 1 : ncol(map1)){
+		if(is.factor(map1[, i]))	map1[, i] <- as.character.factor(map1[, i])
+		if(is.factor(map2[, i]))	map2[, i] <- as.character.factor(map2[, i])
+	}
+
+	mergedSNP <- intersect(map1[, 1], map2[, 1])
+	if(length(mergedSNP) == 0)	stop("No shared SNPs between geno1 and geno2!")
+	row_logi <- NULL
+	geno1_index <- match(mergedSNP, map1[, 1])
+	geno2_index <- match(mergedSNP, map2[, 1])
+	for(i in 2:ncol(map1)){
+		row_logi <- cbind(row_logi, map1[geno1_index, i] == map2[geno2_index, i])
+	}
+	index <- apply(row_logi, 1, all); rm(row_logi); gc()
+	if(!all(index)){
+		stop(sum(!index), " SNPs sharing same names between geno1 and geno2 don't have equal map information!\nSee: ", paste(head(mergedSNP[!index]), collapse=","), "...\n")
+	}
+
+	if(verbose)	cat("Number of individuals in geno1:", nrow(geno1), "\n")
+	if(verbose)	cat("Number of SNPs in geno1:", ncol(geno1), "\n")
+	if(verbose)	cat("Number of individuals in geno2:", nrow(geno2), "\n")
+	if(verbose)	cat("Number of SNPs in geno2:", ncol(geno2), "\n")
+	if(verbose)	cat("Number of shared SNPs between geno1 and geno2:", length(mergedSNP), "\n")
+	
+	chr <- unique(map1[, 2][geno1_index])
+
+	res <- NULL
+	for(chri in chr){
+		chri_index <- map1[, 2][geno1_index] == chri
+		if(verbose)	cat("Loop on chromosome", chri, "with", sum(chri_index), "SNPs\n")
+		# chri_pos_min <- min(sumstat[chri_index, 3])
+		chri_pos_min <- 1
+		chri_pos_max <- max(map1[geno1_index, 3])
+		loop <- TRUE
+		wind_min <- chri_pos_min
+		wind_max <- chri_pos_min + w
+		while(loop){
+			wind_min <- c(wind_min, wind_max[length(wind_max)] + 1)
+			wind_max <- c(wind_max, wind_max[length(wind_max)] + w)
+			if((wind_max[length(wind_max)]) >= chri_pos_max)	loop <- FALSE
+		}
+		if(w >= chri_pos_max){
+			wind_min <- wind_min[1]
+			wind_max <- wind_max[1]
+		}
+		wind_max[length(wind_max)] <- chri_pos_max
+		if(verbose)	cat("Total Number of windows: ", length(wind_min), "\n", sep="")
+		mcf <- function(i){
+			snp_index <- chri_index & map1[, 3][geno1_index] >= wind_min[i] & map1[, 3][geno1_index] <= wind_max[i]
+			snp <- map1[geno1_index, 1][snp_index]
+			if(length(snp) != 0){
+				index1 <- match(snp, map1[, 1])
+				index2 <- match(snp, map2[, 1])
+				if(verbose)	cat("The ", i, "th window: Start[", min(map1[index1, 3], na.rm = TRUE),"] ~ End[", max(map1[index1, 3], na.rm = TRUE),"]\r", sep="")
+				resi <- LDcor_c(geno1@address, geno2@address, index1 = index1 - 1, index2 = index2 - 1, threads = threads)
+			}else{
+				resi <- NULL
+			}
+			return(resi)
+		}
+		chr_res <- lapply(1 : length(wind_min), mcf)
+		if(verbose)	cat("\n");
+		res <- rbind(res, do.call(rbind, chr_res))
+		rm(chr_res); gc()
+	}
+	res <- data.frame(map1[geno1_index, ], res)
+	colnames(res) <- c("SNP", "Chr", "Pos", "A1", "A2", "r", "P-value")
+	t2 <- as.numeric(Sys.time())
+	if(verbose)	cat("Analysis finished:", as.character(Sys.time()), "\n")
+	if(verbose)	cat("Total Running time:", times(t2-t1), "\n")
+	return(res)
+}
+
 #' Generalized Linear Model
 #'
 #' To do association using Generalized Linear Model 
