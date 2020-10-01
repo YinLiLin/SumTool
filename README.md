@@ -14,10 +14,10 @@ If you have any bug reports or questions, please feed back :point_right:[here](h
 Features
 -----
 - LD 
-  - [Linkage disequilibrium matrix](#linkage-disequilibrium)
-  - [Linkage disequilibrium score](#ld-score)
-  - [Linkage disequilibrium pruning](#ld-pruning)/[clumping](#ld-clumping)
-  - [Linkage disequilibrium comparison](#ld-comparison)
+  - [LD matrix](#linkage-disequilibrium)
+  - [LD score](#ld-score)
+  - [LD pruning](#ld-pruning)/[clumping](#ld-clumping)
+  - [LD comparison](#ld-comparison)
 - Association
   - [Linear Model](#linear-model) 
 - Imputation
