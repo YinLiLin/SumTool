@@ -312,7 +312,7 @@ SImputeZ <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 		}else{
 			imp <- SImputeZ_ld_bin_c(ref.geno@address, typed.geno@address, bin_index = bin_index - 1, typed_index = index - 1, typed_bin_index = which(typed_bin_index) - 1, typed_value = data.matrix(typed[typed_bin_index, -c(1:5), drop=FALSE]), verbose = verbose, lambda = lambda, maf = maf, threads = threads)
 		}
-		imp <- data.frame(ref.map, imp)
+		imp <- data.frame(ref.map[bin_index, ], imp)
 	}
 
 	if(verbose)	version.info()
@@ -532,7 +532,7 @@ SImputeB <- function(ref.geno = NULL, ref.map = NULL, typed.geno = NULL, typed =
 		}else{
 			imp <- SImputeZ_ld_bin_c(ref.geno@address, typed.geno@address, bin_index = bin_index - 1, typed_index = index - 1, typed_bin_index = which(typed_bin_index) - 1, typed_value = data.matrix(typed[typed_bin_index, -c(1:5), drop=FALSE]), verbose = verbose, lambda = lambda, maf = maf, threads = threads)
 		}
-		imp <- data.frame(ref.map, imp)
+		imp <- data.frame(ref.map[bin_index, ], imp)
 	}
 
 	if(verbose)	version.info()
