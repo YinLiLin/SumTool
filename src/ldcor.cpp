@@ -41,7 +41,6 @@ arma::mat LDcor_c(XPtr<BigMatrix> pMat1, XPtr<BigMatrix> pMat2, const IntegerVec
 
 	arma::mat ldm1(m, m);
 	arma::mat ldm2(m, m);
-	arma::mat res(m, 2);
 
 	#pragma omp parallel for private(j, p1, m1, s1, s2, i, k, p12, p2, m2, r)
 	for (j = 0; j < m; j++){
@@ -60,6 +59,7 @@ arma::mat LDcor_c(XPtr<BigMatrix> pMat1, XPtr<BigMatrix> pMat2, const IntegerVec
 			r = p12 / (p1 * p2);
 			ldm1(i, j) = ldm1(j, i) = r;
 		}
+
 		p1 = sd_all2[j];
 		m1 = mean_all2[j];
 		s1 = sum_all2[j];
@@ -75,11 +75,20 @@ arma::mat LDcor_c(XPtr<BigMatrix> pMat1, XPtr<BigMatrix> pMat2, const IntegerVec
 			r = p12 / (p1 * p2);
 			ldm2(i, j) = ldm2(j, i) = r;
 		}
-		res(j, 0) = as_scalar(cor(ldm1.col(j), ldm2.col(j)));
-		double t = res(j, 0) * sqrt(m - 2) / sqrt(1 - res(j, 0) * res(j, 0));
-		res(j, 1) = 2 * R::pt(abs(t), m - 2, false, false);
 	}
 
+	arma::mat res(m, 3);
+	double t;
+	for(j = 0; j < m; j++){
+		res(j, 0) = m;
+		res(j, 1) = as_scalar(cor(ldm1.col(j), ldm2.col(j)));
+		if(res(j, 1) == 1.0){
+			res(j, 2) = 0;
+		}else{
+			t = res(j, 1) * sqrt(m - 2) / sqrt(1 - res(j, 1) * res(j, 1));
+			res(j, 2) = 2 * R::pt(abs(t), m - 2, false, false);
+		}
+	}
 	return res;
 }
 

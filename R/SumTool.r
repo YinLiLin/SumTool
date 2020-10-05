@@ -863,7 +863,7 @@ LDcor <- function(geno1 = NULL, map1 = NULL, geno2 = NULL, map2 = NULL, w = 1000
 		if(verbose)	cat("Loop on chromosome", chri, "with", sum(chri_index), "SNPs\n")
 		# chri_pos_min <- min(sumstat[chri_index, 3])
 		chri_pos_min <- 1
-		chri_pos_max <- max(map1[geno1_index, 3])
+		chri_pos_max <- max(map1[geno1_index, 3][chri_index])
 		loop <- TRUE
 		wind_min <- chri_pos_min
 		wind_max <- chri_pos_min + w
@@ -897,7 +897,7 @@ LDcor <- function(geno1 = NULL, map1 = NULL, geno2 = NULL, map2 = NULL, w = 1000
 		rm(chr_res); gc()
 	}
 	res <- data.frame(map1[geno1_index, ], res)
-	colnames(res) <- c("SNP", "Chr", "Pos", "A1", "A2", "r", "P-value")
+	colnames(res) <- c("SNP", "Chr", "Pos", "A1", "A2", "N", "r", "P-value")
 	t2 <- as.numeric(Sys.time())
 	if(verbose)	cat("Analysis finished:", as.character(Sys.time()), "\n")
 	if(verbose)	cat("Total Running time:", times(t2-t1), "\n")
