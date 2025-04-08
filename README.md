@@ -1,4 +1,4 @@
-# SumTool [![](https://img.shields.io/badge/Issues-%2B-brightgreen.svg)](https://github.com/YinLiLin/SumTool/issues) [![](https://img.shields.io/badge/Release-v1.0.0-darkred.svg)](https://github.com/YinLiLin/SumTool) <a href="https://hits.seeyoufarm.com"/><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FYinLiLin%2FSumTool"/></a>
+# SumTool [![](https://img.shields.io/badge/Issues-%2B-brightgreen.svg)](https://github.com/YinLiLin/SumTool/issues) [![](https://img.shields.io/badge/Release-v1.0.0-darkred.svg)](https://github.com/YinLiLin/SumTool) <img alt="Hits" src="https://hits.sh/github.com/YinLiLin/SumTool.svg?view=today-total&label=Today%2FTotal%20Visitors&extraCount=2375"/>
 
 ## *A memory-efficient, parallel-accelerated tool for Summary data based genomic prediction*
 
